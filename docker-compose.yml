@@ -192,7 +192,9 @@ services:
 
   # ─── SSH Vault ────────────────────────────────────────────
   ssh-vault:
-    build: ./services/ssh-vault
+    build:
+      context: .
+      dockerfile: services/ssh-vault/Dockerfile
     environment:
       VAULT_MASTER_KEY: ${VAULT_MASTER_KEY}
       POSTGRES_DSN: postgresql+asyncpg://mas:${POSTGRES_PASSWORD}@pgbouncer:5432/masdb

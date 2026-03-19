@@ -21,36 +21,36 @@
 
 ### 1A — Database
 
-- [ ] `P1-01` Write Alembic migration: `server_credentials` table (SECURITY.md §2.1)
-- [ ] `P1-02` Write Alembic migration: `credential_access_log` table
-- [ ] `P1-03` Write Alembic migration: `tickets` table `{id, server_id, description, severity, status, agent_id, trace_id, resolution_summary, created_at, updated_at}`
-- [ ] `P1-04` Write Alembic migration: `daily_health_snapshots` table `{id, server_id, date, metrics_json, status, created_at}`
-- [ ] `P1-05` Write Alembic migration: `rag_kb_entries` table `{id, error_pattern, fix_steps, tags, confidence, embedding_id, source, created_at}`
-- [ ] `P1-06` Write Alembic migration: `task_queue` table (APScheduler job store)
-- [ ] `P1-07` Create `services/shared/db.py` — async SQLAlchemy engine + session factory
+- [x] `P1-01` Write Alembic migration: `server_credentials` table (SECURITY.md §2.1)
+- [x] `P1-02` Write Alembic migration: `credential_access_log` table
+- [x] `P1-03` Write Alembic migration: `tickets` table `{id, server_id, description, severity, status, agent_id, trace_id, resolution_summary, created_at, updated_at}`
+- [x] `P1-04` Write Alembic migration: `daily_health_snapshots` table `{id, server_id, date, metrics_json, status, created_at}`
+- [x] `P1-05` Write Alembic migration: `rag_kb_entries` table `{id, error_pattern, fix_steps, tags, confidence, embedding_id, source, created_at}`
+- [x] `P1-06` Write Alembic migration: `task_queue` table (APScheduler job store)
+- [x] `P1-07` Create `services/shared/db.py` — async SQLAlchemy engine + session factory
 
 ### 1B — Redis Utilities
 
-- [ ] `P1-08` Create `services/shared/redis_client.py` — async Redis client, connection pool, ping test
-- [ ] `P1-09` Create `services/shared/rate_limiter.py` — token bucket (AGENT_DESIGN.md §5), Lua script, `acquire()` + `record_usage()`
-- [ ] `P1-10` Create `services/shared/task_queue.py` — enqueue/dequeue task dicts via Redis list; `BLPOP` consumer loop
+- [x] `P1-08` Create `services/shared/redis_client.py` — async Redis client, connection pool, ping test
+- [x] `P1-09` Create `services/shared/rate_limiter.py` — token bucket (AGENT_DESIGN.md §5), Lua script, `acquire()` + `record_usage()`
+- [x] `P1-10` Create `services/shared/task_queue.py` — enqueue/dequeue task dicts via Redis list; `BLPOP` consumer loop
 
 ### 1C — SSH Vault Service
 
-- [ ] `P1-11` Create `services/ssh-vault/main.py` — FastAPI app, internal network only
-- [ ] `P1-12` Create `services/ssh-vault/crypto.py` — `VaultCrypto` class (SECURITY.md §2.2)
-- [ ] `P1-13` Create `services/ssh-vault/models.py` — SQLAlchemy ORM models for credential tables
-- [ ] `P1-14` Create `services/ssh-vault/routes.py`:
+- [x] `P1-11` Create `services/ssh-vault/main.py` — FastAPI app, internal network only
+- [x] `P1-12` Create `services/ssh-vault/crypto.py` — `VaultCrypto` class (SECURITY.md §2.2)
+- [x] `P1-13` Create `services/ssh-vault/models.py` — SQLAlchemy ORM models for credential tables
+- [x] `P1-14` Create `services/ssh-vault/routes.py`:
   - `POST /vault/credentials` — add server credential (encrypts all fields)
   - `PUT /vault/credentials/{server_id}` — update / rotate
   - `DELETE /vault/credentials/{server_id}` — deactivate
   - `POST /vault/session` — create short-lived SSH session, return session token
   - `POST /vault/session/{token}/execute` — run command via active session
   - `DELETE /vault/session/{token}` — close session
-- [ ] `P1-15` Create `services/ssh-vault/session_registry.py` — in-process dict of `{token: paramiko.SSHClient}`, TTL-eviction via asyncio task
-- [ ] `P1-16` Create `services/ssh-vault/safety.py` — `is_safe_command()` filter (SECURITY.md §5.2)
-- [ ] `P1-17` Write Dockerfile for `ssh-vault`
-- [ ] `P1-18` Write unit tests: encrypt/decrypt round-trip, session create/execute/close, safety filter
+- [x] `P1-15` Create `services/ssh-vault/session_registry.py` — in-process dict of `{token: paramiko.SSHClient}`, TTL-eviction via asyncio task
+- [x] `P1-16` Create `services/ssh-vault/safety.py` — `is_safe_command()` filter (SECURITY.md §5.2)
+- [x] `P1-17` Write Dockerfile for `ssh-vault`
+- [x] `P1-18` Write unit tests: encrypt/decrypt round-trip, session create/execute/close, safety filter
 
 ---
 

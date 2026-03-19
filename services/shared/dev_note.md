@@ -1,23 +1,38 @@
 # dev_note — shared
 
 ## Purpose
-Shared utilities imported by all services: DB session factory, Redis client, rate limiter, task queue helpers, structured logger.
+Shared utilities imported by all GPU-MAS services: DB session factory, Redis client, rate limiter, task queue helpers.
 
 ## Files
-> Phase 0 scaffold — no code files yet. Built in Phase 1A/1B.
 
-Planned files (from TODO.md P1-07 to P1-10):
-- `db.py` — async SQLAlchemy engine + session factory (`get_db()` dependency)
-- `redis_client.py` — async Redis client, connection pool, `ping()` health check
-- `rate_limiter.py` — `AnthropicRateLimiter`: token bucket via Lua script in Redis; `acquire()` + `record_usage()`
-- `task_queue.py` — `enqueue(queue, task_dict)` + `consume(queue)` BLPOP loop
-- `logger.py` — structlog JSON logger factory; auto-injects `trace_id`, `agent_id`, `service`
+### db.py
+- `Base` — SQLAlchemy `DeclarativeBase`; import in every model module
+- `engine` — async SQLAlchemy engine; reads POSTGRES_DSN env var
+- `AsyncSessionLocal` — `async_sessionmaker`; use directly for non-FastAPI contexts
+- `get_db()` — FastAPI dependency; yields transactional `AsyncSession`; auto-commits on success, rolls back on exception
+
+### redis_client.py
+- `get_redis() -> aioredis.Redis` — singleton async Redis client; creates on first call
+- `close_redis() -> None` — closes connection pool; call on app shutdown
+- `ping() -> bool` — health check
+
+### rate_limiter.py
+- `acquire(estimated_tokens: int) -> bool` — atomic Lua token-bucket check; returns False if RPM/TPM/daily limit exceeded
+- `record_usage(prompt_tokens, completion_tokens) -> float` — increments `mas:cost:daily_usd`; returns new daily total
+- `get_utilisation() -> dict` — returns current RPM%, TPM%, daily cost% (used by /health + ops dashboard)
+- `reset_daily_cost() -> None` — manual reset of daily cost (ops endpoint)
+- Redis keys: `mas:rate_limit:rpm`, `mas:rate_limit:tpm`, `mas:cost:daily_usd`
+
+### task_queue.py
+- `enqueue(queue_name: str, task: dict) -> None` — RPUSH to `mas:{queue_name}_queue`
+- `consume(queue_name, stop_event) -> AsyncIterator[dict]` — BLPOP loop; yields task dicts; exits when stop_event set
+- `queue_depth(queue_name) -> int` — returns pending task count
+- Queue key pattern: `mas:{queue_name}_queue`
+- Queue names in use: `client`, `inserver`, `report`
 
 ## Cross-Service Contracts
-- Imported by: all services as a local package
-- `rate_limiter.py` uses Redis key `mas:rate_limit:rpm` and `mas:rate_limit:tpm` (singleton across all containers)
-- `task_queue.py` Redis key pattern: `mas:{queue_name}_queue`
+- Imported by: all services via `PYTHONPATH=/app` (shared/ copied into each container)
+- `rate_limiter.py` uses a Redis singleton shared across ALL containers — do not create per-container rate limiters
 
 ## Known Gaps / Deferred
-- Phase 0: directory scaffold only
-- `rate_limiter.py` Lua script for atomic token bucket — implement carefully to avoid race conditions
+- `logger.py` — structlog JSON logger factory — ⚠️ STUB: not yet created (Phase 8, P8-02)
