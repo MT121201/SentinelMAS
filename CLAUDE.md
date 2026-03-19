@@ -57,6 +57,58 @@ infra/
 - **Rate limiting**: Single token-bucket in Redis shared by all agents; wraps every Anthropic API call. Agents queue, never drop.
 - **Observability**: Every LLM call traced in Langfuse (self-hosted). Structured JSON logs → Loki. Prometheus metrics → Grafana.
 
+## Directory Dev Notes — Mandatory Rule
+
+Every service/package directory (`services/*`, `infra/*`, `services/shared/`) **must** contain a `dev_note.md` file. This is the single source of truth for what exists in that directory and prevents duplicate functions, orphaned state fields, and re-invented utilities across sessions.
+
+### When to create it
+Create `dev_note.md` the moment you write the **first file** in a new directory.
+
+### When to update it
+Update `dev_note.md` **every time** you add, rename, remove, or significantly change a function, class, or state field in that directory — before ending the session.
+
+### What goes inside
+
+```markdown
+# dev_note — <service-name>
+
+## Purpose
+One sentence: what this service/module does.
+
+## Files
+### <filename>.py
+- `ClassName` — what it is
+  - `method_name(args)` — what it does, return type
+  - `method_name(args)` — ⚠️ STUB: defined but not implemented yet
+  - `method_name(args)` — ❌ REMOVED: was X, replaced by Y in <other_file>.py
+
+## State Fields (for LangGraph state files)
+| Field | Type | Purpose | Status |
+|---|---|---|---|
+| `task_id` | str | Unique task identifier | active |
+| `waiting_for` | str | Blocks execution until this resolves | active |
+| `final_response` | str | Output returned to caller | active |
+| `severity` | Literal | Ticket severity level | active |
+
+## Cross-Service Contracts
+- Calls: `ssh-vault /vault/session` — to get SSH session token
+- Called by: `agent-orchestrator` — via Redis queue task dispatch
+- Shares: `AgentState` TypedDict from `services/shared/state.py`
+
+## Known Gaps / Deferred
+- `hard_restart()` — wired in tools.py but BMC/IPMI call not implemented (Phase 6)
+- Rate limit backoff — placeholder sleep, real backoff in shared rate_limiter.py
+```
+
+### Rules
+- **Before writing any function**: check `dev_note.md` to confirm it does not already exist in this dir or a shared module.
+- **State fields**: every field in a `TypedDict` or `AgentState` must appear in the State Fields table with its purpose. No field without a row.
+- **Stubs**: mark unimplemented functions `⚠️ STUB` so the next session knows not to treat them as working.
+- **Removed code**: when you delete or replace a function, log it as `❌ REMOVED` with what replaced it — prevents re-creation.
+- **Cross-service**: if this module calls another service or is called by one, document the contract so refactors stay consistent.
+
+---
+
 ## Development Commands
 
 > The Makefile is defined in `TODO.md P0-06` and will be created during Phase 0.
