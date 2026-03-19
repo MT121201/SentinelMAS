@@ -35,7 +35,7 @@ AES-256-GCM encrypted SSH credential store. Agents never receive raw SSH keys �
 ### routes.py
 - `router` — APIRouter with all vault endpoints
 - `require_internal_key` — FastAPI dependency; validates X-Internal-Key header
-- `add_credential(body, db)` — `POST /vault/credentials`
+- `add_credential(body, db)` — `POST /vault/credentials`create
 - `update_credential(server_id, body, db)` — `PUT /vault/credentials/{server_id}`
 - `deactivate_credential(server_id, db)` — `DELETE /vault/credentials/{server_id}`
 - `create_session(body, db)` — `POST /vault/session`; decrypts key in-memory, opens paramiko, returns token
