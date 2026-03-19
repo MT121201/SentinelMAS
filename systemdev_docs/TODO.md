@@ -7,13 +7,13 @@
 
 ## PHASE 0 — Project Scaffold
 
-- [ ] `P0-01` Create monorepo directory structure (all `services/`, `infra/`, `docs/`)
-- [ ] `P0-02` Create root `docker-compose.yml` with all service stubs (image: placeholder, networks defined)
-- [ ] `P0-03` Create `.env.example` with all required variables documented
-- [ ] `P0-04` Create `.gitignore` (secrets, `.env`, `__pycache__`, `*.pem`, etc.)
-- [ ] `P0-05` Create shared `requirements-base.txt` (fastapi, uvicorn, pydantic, langchain, langgraph, anthropic, redis, asyncpg, sqlalchemy, cryptography, paramiko, prometheus-client, structlog)
-- [ ] `P0-06` Create shared `pyproject.toml` / `Makefile` with: `make dev`, `make build`, `make test`, `make lint`
-- [ ] `P0-07` Create `infra/postgres/init.sh` for multi-database init (masdb + langfuse)
+- [x] `P0-01` Create monorepo directory structure (all `services/`, `infra/`, `docs/`)
+- [x] `P0-02` Create root `docker-compose.yml` with all service stubs (image: placeholder, networks defined)
+- [x] `P0-03` Create `.env.example` with all required variables documented
+- [x] `P0-04` Create `.gitignore` (secrets, `.env`, `__pycache__`, `*.pem`, etc.)
+- [x] `P0-05` Create shared `requirements-base.txt` (fastapi, uvicorn, pydantic, langchain, langgraph, anthropic, redis, asyncpg, sqlalchemy, cryptography, paramiko, prometheus-client, structlog)
+- [x] `P0-06` Create shared `pyproject.toml` / `Makefile` with: `make dev`, `make build`, `make test`, `make lint`
+- [x] `P0-07` Create `infra/postgres/init.sh` for multi-database init (masdb + langfuse)
 
 ---
 

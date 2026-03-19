@@ -1,0 +1,63 @@
+# ─── Web framework ────────────────────────────────────────
+fastapi==0.115.5
+uvicorn[standard]==0.32.1
+gunicorn==23.0.0
+
+# ─── Data validation ──────────────────────────────────────
+pydantic==2.10.3
+pydantic-settings==2.7.0
+
+# ─── LLM / Agent framework ────────────────────────────────
+anthropic==0.40.0
+langchain==0.3.13
+langchain-anthropic==0.3.3
+langgraph==0.2.59
+
+# ─── Database ─────────────────────────────────────────────
+sqlalchemy[asyncio]==2.0.36
+asyncpg==0.30.0
+alembic==1.14.0
+
+# ─── Redis ────────────────────────────────────────────────
+redis[hiredis]==5.2.1
+
+# ─── Vector store ─────────────────────────────────────────
+qdrant-client==1.12.1
+openai==1.57.4           # for text-embedding-3-small
+
+# ─── Retrieval ────────────────────────────────────────────
+rank-bm25==0.2.2
+sentence-transformers==3.3.1   # cross-encoder reranker
+
+# ─── SSH ──────────────────────────────────────────────────
+paramiko==3.5.0
+
+# ─── Encryption ───────────────────────────────────────────
+cryptography==44.0.0
+
+# ─── Auth ─────────────────────────────────────────────────
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+
+# ─── Rate limiting ────────────────────────────────────────
+slowapi==0.1.9
+
+# ─── Scheduling ───────────────────────────────────────────
+apscheduler==3.10.4
+
+# ─── Observability ────────────────────────────────────────
+structlog==24.4.0
+prometheus-fastapi-instrumentator==7.0.0
+langfuse==2.57.3
+
+# ─── Web search ───────────────────────────────────────────
+tavily-python==0.5.0
+
+# ─── HTTP client ──────────────────────────────────────────
+httpx==0.28.1
+
+# ─── Dev / test ───────────────────────────────────────────
+pytest==8.3.4
+pytest-asyncio==0.24.0
+pytest-httpx==0.35.0
+ruff==0.8.4
