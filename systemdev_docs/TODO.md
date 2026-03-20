@@ -124,19 +124,19 @@
 
 ## PHASE 5 — InServer Agent
 
-- [ ] `P5-01` Create `services/inserver-agent/tools.py` — all tools listed in AGENT_DESIGN.md §1.2 (each as an async function calling vault service or Postgres)
-- [ ] `P5-02` Create `services/inserver-agent/graph.py` — LangGraph graph: check_all_servers → per_server_health → fix_if_allowed → emit_snapshot
-- [ ] `P5-03` Create `services/inserver-agent/prompts.py` — system prompt (AGENT_DESIGN.md §1.2)
-- [ ] `P5-04` Create `services/inserver-agent/executor.py` — agent runner: receive task from orchestrator, run graph, report results
-- [ ] `P5-05` Create `services/inserver-agent/health_checks.py`:
+- [x] `P5-01` Create `services/inserver-agent/tools.py` — all tools listed in AGENT_DESIGN.md §1.2 (each as an async function calling vault service or Postgres)
+- [x] `P5-02` Create `services/inserver-agent/graph.py` — LangGraph graph: check_all_servers → per_server_health → fix_if_allowed → emit_snapshot
+- [x] `P5-03` Create `services/inserver-agent/prompts.py` — system prompt (AGENT_DESIGN.md §1.2)
+- [x] `P5-04` Create `services/inserver-agent/executor.py` — agent runner: receive task from orchestrator, run graph, report results
+- [x] `P5-05` Create `services/inserver-agent/health_checks.py`:
   - `check_gpu()` — nvidia-smi parser
   - `check_disk()` — df -h parser
-  - `check_memory()` — free -m parser  
+  - `check_memory()` — free -m parser
   - `check_process()` — systemctl status parser
   - `check_ssh_blacklist()` — fail2ban-client + iptables check
-- [ ] `P5-06` Create `services/inserver-agent/main.py` — poll orchestrator for maintenance tasks
-- [ ] `P5-07` Write Dockerfile for `inserver-agent`
-- [ ] `P5-08` Write tests: mock SSH responses, verify health check parsers, verify blacklist detection + recovery
+- [x] `P5-06` Create `services/inserver-agent/main.py` — poll orchestrator for maintenance tasks
+- [x] `P5-07` Write Dockerfile for `inserver-agent`
+- [x] `P5-08` Write tests: mock SSH responses, verify health check parsers, verify blacklist detection + recovery
 
 ---
 

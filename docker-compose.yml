@@ -92,7 +92,9 @@ services:
 
   # ─── InServer Agent ───────────────────────────────────────
   inserver-agent:
-    build: ./services/inserver-agent
+    build:
+      context: .
+      dockerfile: services/inserver-agent/Dockerfile
     environment:
       <<: *common-env
       AGENT_TYPE: inserver
