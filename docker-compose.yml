@@ -167,7 +167,9 @@ services:
 
   # ─── RAG Service ──────────────────────────────────────────
   rag-service:
-    build: ./services/rag-service
+    build:
+      context: .
+      dockerfile: services/rag-service/Dockerfile
     environment:
       <<: *common-env
       EMBEDDING_MODEL: text-embedding-3-small

@@ -83,21 +83,21 @@
 
 ## PHASE 3 — RAG Service
 
-- [ ] `P3-01` Create `services/rag-service/main.py` — FastAPI app
-- [ ] `P3-02` Create `services/rag-service/embedder.py` — OpenAI `text-embedding-3-small` calls, batch support
-- [ ] `P3-03` Create `services/rag-service/vector_store.py` — Qdrant client, collection setup, upsert, search
-- [ ] `P3-04` Create `services/rag-service/bm25_index.py` — `rank_bm25` index, persist index to Postgres (serialised), load on startup
-- [ ] `P3-05` Create `services/rag-service/hybrid_search.py` — dense + sparse parallel search, Reciprocal Rank Fusion merge
-- [ ] `P3-06` Create `services/rag-service/reranker.py` — cross-encoder rerank (sentence-transformers model loaded once at startup)
-- [ ] `P3-07` Create `services/rag-service/semantic_cache.py` — query embedding → Redis cosine check → read/write cache
-- [ ] `P3-08` Create `services/rag-service/routes.py`:
+- [x] `P3-01` Create `services/rag-service/main.py` — FastAPI app
+- [x] `P3-02` Create `services/rag-service/embedder.py` — OpenAI `text-embedding-3-small` calls, batch support
+- [x] `P3-03` Create `services/rag-service/vector_store.py` — Qdrant client, collection setup, upsert, search
+- [x] `P3-04` Create `services/rag-service/bm25_index.py` — `rank_bm25` index, persist index to Postgres (serialised), load on startup
+- [x] `P3-05` Create `services/rag-service/hybrid_search.py` — dense + sparse parallel search, Reciprocal Rank Fusion merge
+- [x] `P3-06` Create `services/rag-service/reranker.py` — cross-encoder rerank (sentence-transformers model loaded once at startup)
+- [x] `P3-07` Create `services/rag-service/semantic_cache.py` — query embedding → Redis cosine check → read/write cache
+- [x] `P3-08` Create `services/rag-service/routes.py`:
   - `POST /rag/search` — full pipeline: cache → hybrid → rerank
   - `POST /rag/ingest` — add error+fix pair to KB (sanitise → embed → upsert)
   - `DELETE /rag/entry/{id}` — remove entry
   - `GET /rag/stats` — KB size, cache hit rate
-- [ ] `P3-09` Create `services/rag-service/sanitiser.py` — strip PII from patterns before storage
-- [ ] `P3-10` Write Dockerfile for `rag-service`
-- [ ] `P3-11` Write tests: ingest → search round-trip, cache hit behaviour, BM25 index persistence
+- [x] `P3-09` Create `services/rag-service/sanitiser.py` — strip PII from patterns before storage
+- [x] `P3-10` Write Dockerfile for `rag-service`
+- [x] `P3-11` Write tests: ingest → search round-trip, cache hit behaviour, BM25 index persistence
 
 ---
 
