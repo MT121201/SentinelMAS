@@ -9,6 +9,7 @@ Public FastAPI entrypoint: JWT auth, rate limiting, request routing to orchestra
 - `Settings` — pydantic-settings; reads JWT_SECRET_KEY, INTERNAL_API_KEY, ADMIN_USERNAME, ADMIN_PASSWORD_HASH, VAULT_URL, ORCHESTRATOR_URL, ENV
 
 ### auth.py
+> **Implementation note:** Uses `bcrypt` library directly (`bcrypt.checkpw` / `bcrypt.hashpw`). `passlib[bcrypt]==1.7.4` was removed — it is incompatible with `bcrypt>=4.x` (passlib's `detect_wrap_bug` raises `ValueError` at runtime). Direct `bcrypt` calls are simpler and have no compatibility issues.
 - `verify_password(plain, hashed) -> bool` — bcrypt check
 - `hash_password(plain) -> str` — bcrypt hash (use for generating ADMIN_PASSWORD_HASH)
 - `create_access_token(subject) -> str` — signs JWT with HS256, 24h expiry

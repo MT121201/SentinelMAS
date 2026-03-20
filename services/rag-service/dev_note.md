@@ -131,7 +131,7 @@ Full rebuild also triggered after each ingest (via asyncio.create_task).
 | `rerank` | `(query, candidates, top_k) -> list[dict]` | Cross-encoder score all pairs, return top_k with `rerank_score` |
 | `preload_model` | `() -> None` | Async wrapper for startup warm-up via asyncio.to_thread |
 
-**Model:** `cross-encoder/ms-marco-MiniLM-L-6-v2` (downloaded at Docker build time)
+**Model:** `cross-encoder/ms-marco-MiniLM-L-6-v2` (downloaded at Docker build time into `HF_HOME=/app/.cache/huggingface` so `appuser` uid 1000 can read it at runtime — do NOT remove that env var from the Dockerfile or the container will try to re-download on an internal network and fail)
 
 ---
 

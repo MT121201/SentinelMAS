@@ -181,7 +181,7 @@ report       → mas:report_queue
 2. Redis connection
 3. `init_pool()` + `pool.start()` (watchdog)
 4. `langfuse_tracer.init_tracer()`
-5. APScheduler start + `register_jobs()`
+5. APScheduler start + `register_jobs()` (MemoryJobStore — see Known Gaps)
 6. `run_consumer()` as `asyncio.create_task`
 
 Port: **8001** (single Uvicorn worker — consumer loop must be in same event loop)
@@ -199,8 +199,9 @@ Port: **8001** (single Uvicorn worker — consumer loop must be in same event lo
 | supervisor → inserver-agent | `mas:inserver_queue` | RPUSH routed here for maintenance tasks |
 | supervisor → report-agent | `mas:report_queue` | RPUSH routed here for report tasks |
 | Postgres | `tickets` table | Status updated on route + agent callback |
-| Postgres | `apscheduler_jobs` | APScheduler PostgreSQL job store |
+| Postgres | `apscheduler_jobs` | Table exists (migration 006) but not used as job store — MemoryJobStore active |
 
 ## Known Gaps / Deferred
 - Langfuse self-hosted instance configured in Phase 8
+- APScheduler uses `MemoryJobStore` (not `SQLAlchemyJobStore`). Async Redis clients cannot be pickled by APScheduler's PostgreSQL job store. Jobs re-register on every startup via `register_jobs()` with `replace_existing=True` — behaviour is identical to persistent store for our 3 fixed cron jobs. Migrate to PostgreSQL job store if jobs need to survive rolling restarts without re-registration.
 - specialist agents (inserver, client, report) send status callbacks via `PUT /internal/tasks/{id}/status`
