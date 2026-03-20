@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SentinelMAS — Ops Dashboard</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --card: #1a1d27;
+      --border: #2a2d3e;
+      --text: #e0e0e0;
+      --muted: #8b8fa8;
+      --green: #22c55e;
+      --yellow: #eab308;
+      --orange: #f97316;
+      --red: #ef4444;
+      --blue: #3b82f6;
+      --purple: #a855f7;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, monospace; font-size: 14px; }
+
+    header {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    header h1 { font-size: 16px; font-weight: 600; letter-spacing: 0.5px; }
+    #refresh-indicator { font-size: 12px; color: var(--muted); }
+    #refresh-indicator.ok::before { content: "● "; color: var(--green); }
+    #refresh-indicator.err::before { content: "● "; color: var(--red); }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px;
+      padding: 20px 24px;
+    }
+    .grid-wide {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      padding: 0 24px 20px;
+    }
+    @media (max-width: 900px) { .grid-wide { grid-template-columns: 1fr; } }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    .card-title {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .stat-value {
+      font-size: 32px;
+      font-weight: 700;
+      line-height: 1;
+    }
+    .stat-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+    .green  { color: var(--green); }
+    .yellow { color: var(--yellow); }
+    .orange { color: var(--orange); }
+    .red    { color: var(--red); }
+    .blue   { color: var(--blue); }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    th {
+      text-align: left;
+      padding: 6px 8px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+    }
+    td {
+      padding: 8px 8px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(255,255,255,0.03); }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .badge-green  { background: rgba(34,197,94,0.15);  color: var(--green); }
+    .badge-yellow { background: rgba(234,179,8,0.15);  color: var(--yellow); }
+    .badge-red    { background: rgba(239,68,68,0.15);  color: var(--red); }
+    .badge-blue   { background: rgba(59,130,246,0.15); color: var(--blue); }
+    .badge-muted  { background: rgba(139,143,168,0.15); color: var(--muted); }
+
+    .progress-bar-bg {
+      background: var(--border);
+      border-radius: 4px;
+      height: 6px;
+      margin-top: 8px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.5s ease;
+    }
+
+    #error-banner {
+      display: none;
+      background: rgba(239,68,68,0.1);
+      border: 1px solid rgba(239,68,68,0.3);
+      color: var(--red);
+      padding: 12px 24px;
+      font-size: 13px;
+    }
+
+    .section-title {
+      padding: 0 24px 8px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>⬡ SentinelMAS — Operations Dashboard</h1>
+  <span id="refresh-indicator" class="ok">Live · auto-refresh 10s</span>
+</header>
+
+<div id="error-banner"></div>
+
+<!-- KPI row -->
+<div class="grid" id="kpi-grid">
+  <div class="card">
+    <div class="card-title">Active Agents</div>
+    <div class="stat-value" id="kpi-agents">—</div>
+    <div class="stat-sub">running tasks</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Total Pending</div>
+    <div class="stat-value" id="kpi-pending">—</div>
+    <div class="stat-sub">across all queues</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Tickets Today</div>
+    <div class="stat-value" id="kpi-tickets">—</div>
+    <div class="stat-sub" id="kpi-tickets-sub">resolved / total</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Resolution Rate</div>
+    <div class="stat-value" id="kpi-rate">—</div>
+    <div class="stat-sub">today</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Daily Spend</div>
+    <div class="stat-value blue" id="kpi-cost">—</div>
+    <div class="stat-sub" id="kpi-cost-sub">of limit</div>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="cost-bar" style="width:0%;background:var(--blue)"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">RPM Used</div>
+    <div class="stat-value" id="kpi-rpm">—</div>
+    <div class="stat-sub" id="kpi-rpm-sub">of limit</div>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="rpm-bar" style="width:0%;background:var(--purple)"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Queues + Agents -->
+<div class="grid-wide">
+  <div class="card">
+    <div class="card-title">Queue Depths</div>
+    <table id="queue-table">
+      <thead><tr><th>Queue</th><th>Pending</th><th>Status</th></tr></thead>
+      <tbody id="queue-body"><tr><td colspan="3" style="color:var(--muted)">Loading…</td></tr></tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Active Agent Tasks</div>
+    <table id="agent-table">
+      <thead><tr><th>Task ID</th><th>Type</th><th>Status</th><th>Since</th></tr></thead>
+      <tbody id="agent-body"><tr><td colspan="4" style="color:var(--muted)">Loading…</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Ticket breakdown -->
+<div style="padding: 0 24px 24px">
+  <div class="card">
+    <div class="card-title">Ticket Breakdown — Today</div>
+    <table id="ticket-table">
+      <thead><tr><th>Status</th><th>Count</th><th>Share</th></tr></thead>
+      <tbody id="ticket-body"><tr><td colspan="3" style="color:var(--muted)">Loading…</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+const API = '/ops/dashboard';
+const REFRESH_MS = 10000;
+
+function pct(value, limit) {
+  return limit > 0 ? Math.min(100, Math.round(value / limit * 100)) : 0;
+}
+
+function colorClass(pct) {
+  if (pct >= 90) return 'red';
+  if (pct >= 75) return 'orange';
+  if (pct >= 50) return 'yellow';
+  return 'green';
+}
+
+function barColor(pct) {
+  if (pct >= 90) return 'var(--red)';
+  if (pct >= 75) return 'var(--orange)';
+  if (pct >= 50) return 'var(--yellow)';
+  return 'var(--green)';
+}
+
+function queueBadge(n) {
+  if (n === 0) return '<span class="badge badge-green">idle</span>';
+  if (n < 10) return '<span class="badge badge-yellow">active</span>';
+  return '<span class="badge badge-red">busy</span>';
+}
+
+function statusBadge(s) {
+  const map = {
+    queued:    'badge-muted',
+    assigned:  'badge-blue',
+    thinking:  'badge-blue',
+    executing: 'badge-yellow',
+    verifying: 'badge-yellow',
+    done:      'badge-green',
+    failed:    'badge-red',
+    escalated: 'badge-red',
+  };
+  return `<span class="badge ${map[s] || 'badge-muted'}">${s}</span>`;
+}
+
+async function refresh() {
+  try {
+    const resp = await fetch(API, {cache: 'no-store'});
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const d = await resp.json();
+
+    document.getElementById('refresh-indicator').className = 'ok';
+    document.getElementById('refresh-indicator').textContent = `Live · ${new Date().toLocaleTimeString()}`;
+    document.getElementById('error-banner').style.display = 'none';
+
+    // KPIs
+    document.getElementById('kpi-agents').textContent = d.agents.count;
+    document.getElementById('kpi-pending').textContent = d.total_pending;
+
+    const t = d.tickets_today;
+    document.getElementById('kpi-tickets').textContent = t.total;
+    document.getElementById('kpi-tickets-sub').textContent = `${t.done} resolved · ${t.failed} failed · ${t.escalated} escalated`;
+
+    const rateEl = document.getElementById('kpi-rate');
+    rateEl.textContent = t.resolution_rate_pct + '%';
+    rateEl.className = 'stat-value ' + colorClass(t.resolution_rate_pct);
+
+    const c = d.cost;
+    const costPct = pct(c.daily_usd, c.daily_limit_usd);
+    document.getElementById('kpi-cost').textContent = '$' + c.daily_usd.toFixed(4);
+    document.getElementById('kpi-cost-sub').textContent = `${costPct}% of $${c.daily_limit_usd}`;
+    const costBar = document.getElementById('cost-bar');
+    costBar.style.width = costPct + '%';
+    costBar.style.background = barColor(costPct);
+
+    const rpmPct = pct(c.rpm_used, c.rpm_limit);
+    document.getElementById('kpi-rpm').textContent = c.rpm_used;
+    document.getElementById('kpi-rpm-sub').textContent = `${rpmPct}% of ${c.rpm_limit} RPM`;
+    const rpmBar = document.getElementById('rpm-bar');
+    rpmBar.style.width = rpmPct + '%';
+    rpmBar.style.background = barColor(rpmPct);
+
+    // Queue table
+    const qBody = document.getElementById('queue-body');
+    qBody.innerHTML = d.queues.map(q =>
+      `<tr><td>${q.queue}</td><td><strong>${q.pending}</strong></td><td>${queueBadge(q.pending)}</td></tr>`
+    ).join('');
+
+    // Agent table
+    const aBody = document.getElementById('agent-body');
+    if (d.agents.active.length === 0) {
+      aBody.innerHTML = '<tr><td colspan="4" style="color:var(--muted)">No active tasks</td></tr>';
+    } else {
+      aBody.innerHTML = d.agents.active.map(a =>
+        `<tr>
+          <td style="font-family:monospace;font-size:12px">${(a.task_id||'').slice(0,12)}…</td>
+          <td>${a.task_type || '—'}</td>
+          <td>${statusBadge(a.status || 'unknown')}</td>
+          <td style="color:var(--muted)">${a.created_at ? a.created_at.slice(11,16) : '—'}</td>
+        </tr>`
+      ).join('');
+    }
+
+    // Ticket breakdown
+    const statuses = ['queued','assigned','thinking','executing','verifying','done','failed','escalated'];
+    const counts = {
+      queued: t.in_progress, done: t.done, failed: t.failed, escalated: t.escalated
+    };
+    const total = t.total || 1;
+    const tBody = document.getElementById('ticket-body');
+    const rows = [
+      ['In Progress', t.in_progress, 'badge-blue'],
+      ['Done',        t.done,        'badge-green'],
+      ['Failed',      t.failed,      'badge-red'],
+      ['Escalated',   t.escalated,   'badge-red'],
+    ];
+    tBody.innerHTML = rows.map(([label, count, cls]) =>
+      `<tr>
+        <td><span class="badge ${cls}">${label}</span></td>
+        <td><strong>${count}</strong></td>
+        <td style="color:var(--muted)">${total > 0 ? (count/total*100).toFixed(1) : 0}%</td>
+      </tr>`
+    ).join('');
+
+  } catch(e) {
+    document.getElementById('refresh-indicator').className = 'err';
+    document.getElementById('refresh-indicator').textContent = 'Error · retrying…';
+    const banner = document.getElementById('error-banner');
+    banner.style.display = 'block';
+    banner.textContent = 'Failed to load dashboard data: ' + e.message;
+  }
+}
+
+refresh();
+setInterval(refresh, REFRESH_MS);
+</script>
+</body>
+</html>

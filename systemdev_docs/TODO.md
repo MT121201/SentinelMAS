@@ -169,17 +169,17 @@
 
 ## PHASE 8 — LLMOps & Observability
 
-- [ ] `P8-01` Configure Langfuse self-hosted in docker-compose (already in INFRA.md — verify working)
-- [ ] `P8-02` Create `services/shared/logger.py` — structlog JSON logger factory, auto-injects `trace_id`, `agent_id`, `service`
-- [ ] `P8-03` Add Prometheus `/metrics` to each service (use `prometheus-fastapi-instrumentator`)
-- [ ] `P8-04` Create `infra/prometheus/prometheus.yml` — scrape all services
-- [ ] `P8-05` Create `infra/grafana/dashboards/agent_overview.json` — queue depth, active agents, success rate
-- [ ] `P8-06` Create `infra/grafana/dashboards/token_spend.json` — daily cost, RPM/TPM utilisation
-- [ ] `P8-07` Create `infra/grafana/dashboards/server_fleet.json` — per-server health scores
-- [ ] `P8-08` Create `infra/loki/loki-config.yaml` — local storage, 30d retention
-- [ ] `P8-09` Add Loki log shipper (Promtail) sidecar or Docker logging driver to compose
-- [ ] `P8-10` Create `services/api-gateway/routes/ops_dashboard.py` — `GET /ops/agents` live view endpoint (used by simple ops HTML page)
-- [ ] `P8-11` Create simple ops HTML page at `services/api-gateway/static/ops.html` — auto-refreshing agent state table
+- [x] `P8-01` Configure Langfuse self-hosted in docker-compose (already in INFRA.md — verify working)
+- [x] `P8-02` Create `services/shared/logger.py` — structlog JSON logger factory, auto-injects `trace_id`, `agent_id`, `service`
+- [x] `P8-03` Add Prometheus `/metrics` to each service (use `prometheus-fastapi-instrumentator`)
+- [x] `P8-04` Create `infra/prometheus/prometheus.yml` — scrape all services
+- [x] `P8-05` Create `infra/grafana/dashboards/agent_overview.json` — queue depth, active agents, success rate
+- [x] `P8-06` Create `infra/grafana/dashboards/token_spend.json` — daily cost, RPM/TPM utilisation
+- [x] `P8-07` Create `infra/grafana/dashboards/server_fleet.json` — per-server health scores
+- [x] `P8-08` Create `infra/loki/loki-config.yaml` — local storage, 30d retention
+- [x] `P8-09` Add Loki log shipper (Promtail) sidecar or Docker logging driver to compose
+- [x] `P8-10` Create `services/api-gateway/routes/ops_dashboard.py` — `GET /ops/agents` live view endpoint (used by simple ops HTML page)
+- [x] `P8-11` Create simple ops HTML page at `services/api-gateway/static/ops.html` — auto-refreshing agent state table
 
 ---
 

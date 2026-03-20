@@ -12,6 +12,7 @@ import logging
 import redis.asyncio as aioredis
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
+from prometheus_fastapi_instrumentator import Instrumentator
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 import bm25_index as bm25_mod
@@ -64,6 +65,8 @@ app = FastAPI(
 )
 
 app.include_router(router)
+
+Instrumentator().instrument(app).expose(app, endpoint="/metrics", include_in_schema=False)
 
 
 @app.get("/health")

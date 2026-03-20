@@ -34,5 +34,11 @@ Shared utilities imported by all GPU-MAS services: DB session factory, Redis cli
 - Imported by: all services via `PYTHONPATH=/app` (shared/ copied into each container)
 - `rate_limiter.py` uses a Redis singleton shared across ALL containers — do not create per-container rate limiters
 
+### logger.py
+- `configure_logging(log_level)` — call once at startup; sets up structlog JSON → stdout, bridges stdlib logging
+- `get_logger(name, **initial_context)` → `BoundLogger` — returns structlog logger pre-bound with service-level context
+- `bind_trace_context(trace_id, agent_id, task_id, ticket_id)` — binds per-task context into structlog contextvars store
+- `clear_trace_context()` — clears all contextvars; call at end of each task
+
 ## Known Gaps / Deferred
-- `logger.py` — structlog JSON logger factory — ⚠️ STUB: not yet created (Phase 8, P8-02)
+- None — all planned shared modules are implemented

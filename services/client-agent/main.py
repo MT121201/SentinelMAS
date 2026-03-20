@@ -12,6 +12,7 @@ from contextlib import asynccontextmanager
 
 import redis.asyncio as aioredis
 from fastapi import FastAPI
+from prometheus_fastapi_instrumentator import Instrumentator
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from config import settings
@@ -85,6 +86,9 @@ app = FastAPI(
     docs_url="/docs",
     redoc_url=None,
 )
+
+
+Instrumentator().instrument(app).expose(app, endpoint="/metrics", include_in_schema=False)
 
 
 @app.get("/health")

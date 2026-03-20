@@ -1,0 +1,71 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: "sentinelmas"
+    env: "production"
+
+rule_files: []
+
+alerting:
+  alertmanagers: []
+
+scrape_configs:
+  # ── API Gateway ────────────────────────────────────────────────────────────
+  - job_name: "api-gateway"
+    static_configs:
+      - targets: ["api-gateway:8000"]
+    metrics_path: /metrics
+    scrape_interval: 15s
+
+  # ── Agent Orchestrator ─────────────────────────────────────────────────────
+  - job_name: "agent-orchestrator"
+    static_configs:
+      - targets: ["orchestrator:8001"]
+    metrics_path: /metrics
+    scrape_interval: 15s
+
+  # ── InServer Agent ─────────────────────────────────────────────────────────
+  - job_name: "inserver-agent"
+    static_configs:
+      - targets: ["inserver-agent:8002"]
+    metrics_path: /metrics
+    scrape_interval: 15s
+
+  # ── Client Agent ───────────────────────────────────────────────────────────
+  - job_name: "client-agent"
+    static_configs:
+      - targets: ["client-agent:8003"]
+    metrics_path: /metrics
+    scrape_interval: 15s
+
+  # ── Report Agent ───────────────────────────────────────────────────────────
+  - job_name: "report-agent"
+    static_configs:
+      - targets: ["report-agent:8004"]
+    metrics_path: /metrics
+    scrape_interval: 30s
+
+  # ── RAG Service ────────────────────────────────────────────────────────────
+  - job_name: "rag-service"
+    static_configs:
+      - targets: ["rag-service:8005"]
+    metrics_path: /metrics
+    scrape_interval: 15s
+
+  # ── SSH Vault ──────────────────────────────────────────────────────────────
+  - job_name: "ssh-vault"
+    static_configs:
+      - targets: ["ssh-vault:8100"]
+    metrics_path: /metrics
+    scrape_interval: 30s
+
+  # ── Redis Exporter (optional — requires redis-exporter sidecar) ────────────
+  # - job_name: "redis"
+  #   static_configs:
+  #     - targets: ["redis-exporter:9121"]
+
+  # ── Prometheus self-scrape ─────────────────────────────────────────────────
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["localhost:9090"]

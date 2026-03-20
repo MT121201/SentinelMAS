@@ -351,8 +351,10 @@ services:
     image: grafana/grafana:10.4.0
     environment:
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD}
+      GF_PATHS_PROVISIONING: /etc/grafana/provisioning
     volumes:
       - grafana_data:/var/lib/grafana
+      - ./infra/grafana/provisioning:/etc/grafana/provisioning:ro
       - ./infra/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
     ports:
       - "3001:3000"
@@ -368,8 +370,21 @@ services:
     volumes:
       - loki_data:/loki
       - ./infra/loki/loki-config.yaml:/etc/loki/local-config.yaml:ro
+    command: -config.file=/etc/loki/local-config.yaml
     networks:
       - internal
+
+  # ─── Promtail (log shipper) ───────────────────────────────
+  promtail:
+    image: grafana/promtail:2.9.0
+    volumes:
+      - ./infra/promtail/promtail-config.yaml:/etc/promtail/config.yaml:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    command: -config.file=/etc/promtail/config.yaml
+    networks:
+      - internal
+    depends_on:
+      - loki
 
 volumes:
   pg_data:

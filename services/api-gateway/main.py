@@ -11,6 +11,8 @@ import sys
 import structlog
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
+from prometheus_fastapi_instrumentator import Instrumentator
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
@@ -20,7 +22,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from config import settings
 from limiter import limiter
 from middleware import RequestContextMiddleware
-from routes import auth, tickets, reports, ops, admin, system
+from routes import auth, tickets, reports, ops, admin, system, ops_dashboard
 
 # ── Structured logging ────────────────────────────────────────────────────────
 structlog.configure(
@@ -63,8 +65,15 @@ app.include_router(auth.router)
 app.include_router(tickets.router)
 app.include_router(reports.router)
 app.include_router(ops.router)
+app.include_router(ops_dashboard.router)
 app.include_router(admin.router)
 app.include_router(system.router)
+
+# Prometheus metrics endpoint
+Instrumentator().instrument(app).expose(app, endpoint="/metrics", include_in_schema=False)
+
+# Ops HTML page
+app.mount("/ops/ui", StaticFiles(directory=os.path.join(os.path.dirname(__file__), "static"), html=True), name="static")
 
 
 # ── Global error handler ──────────────────────────────────────────────────────
