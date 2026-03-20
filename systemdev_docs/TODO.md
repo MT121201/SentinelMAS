@@ -157,13 +157,13 @@
 
 ## PHASE 7 — Report Agent
 
-- [ ] `P7-01` Create `services/report-agent/aggregator.py` — fetch daily snapshots, ticket stats, cost data
-- [ ] `P7-02` Create `services/report-agent/formatter.py` — render markdown report with tables
-- [ ] `P7-03` Create `services/report-agent/sender.py` — webhook POST + optional SMTP
-- [ ] `P7-04` Create `services/report-agent/graph.py` — LangGraph: aggregate → format → send
-- [ ] `P7-05` Create `services/report-agent/prompts.py` — report agent system prompt
-- [ ] `P7-06` Create `services/report-agent/main.py` — poll orchestrator for report tasks
-- [ ] `P7-07` Write Dockerfile for `report-agent`
+- [x] `P7-01` Create `services/report-agent/aggregator.py` — fetch daily snapshots, ticket stats, cost data
+- [x] `P7-02` Create `services/report-agent/formatter.py` — render markdown report with tables
+- [x] `P7-03` Create `services/report-agent/sender.py` — webhook POST + optional SMTP
+- [x] `P7-04` Create `services/report-agent/graph.py` — LangGraph: aggregate → format → send
+- [x] `P7-05` Create `services/report-agent/prompts.py` — report agent system prompt
+- [x] `P7-06` Create `services/report-agent/main.py` — poll orchestrator for report tasks
+- [x] `P7-07` Write Dockerfile for `report-agent`
 
 ---
 

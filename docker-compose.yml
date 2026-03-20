@@ -148,7 +148,9 @@ services:
 
   # ─── Report Agent ─────────────────────────────────────────
   report-agent:
-    build: ./services/report-agent
+    build:
+      context: .
+      dockerfile: services/report-agent/Dockerfile
     environment:
       <<: *common-env
       MANAGER_WEBHOOK_URL: ${MANAGER_WEBHOOK_URL:-}
