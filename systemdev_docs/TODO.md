@@ -185,13 +185,13 @@
 
 ## PHASE 9 — Integration & Testing
 
-- [ ] `P9-01` Write end-to-end test: submit ticket → agent picks up → SSH mock → resolved
-- [ ] `P9-02` Write end-to-end test: daily maintenance trigger → all servers checked → report generated
-- [ ] `P9-03` Write load test (locust): 1000 ticket submissions → verify queue handles without dropping
-- [ ] `P9-04` Write rate limit test: exceed `ANTHROPIC_RPM_LIMIT` → verify queuing, not dropping
-- [ ] `P9-05` Write vault security test: attempt to access credentials without internal key → verify 403
-- [ ] `P9-06` Write safety filter test: attempt forbidden SSH commands → verify rejection + alert log
-- [ ] `P9-07` Docker compose smoke test: `docker compose up` → all `/health` endpoints return 200
+- [x] `P9-01` Write end-to-end test: submit ticket → agent picks up → SSH mock → resolved
+- [x] `P9-02` Write end-to-end test: daily maintenance trigger → all servers checked → report generated
+- [x] `P9-03` Write load test (locust): 1000 ticket submissions → verify queue handles without dropping
+- [x] `P9-04` Write rate limit test: exceed `ANTHROPIC_RPM_LIMIT` → verify queuing, not dropping
+- [x] `P9-05` Write vault security test: attempt to access credentials without internal key → verify 403
+- [x] `P9-06` Write safety filter test: attempt forbidden SSH commands → verify rejection + alert log
+- [x] `P9-07` Docker compose smoke test: `docker compose up` → all `/health` endpoints return 200
 
 ---
 
