@@ -56,28 +56,28 @@
 
 ## PHASE 2 — API Gateway
 
-- [ ] `P2-01` Create `services/api-gateway/main.py` — FastAPI app with all routers mounted
-- [ ] `P2-02` Create `services/api-gateway/auth.py` — JWT issue + verify, API key check (API_DESIGN.md §6)
-- [ ] `P2-03` Create `services/api-gateway/models.py` — all Pydantic models (API_DESIGN.md §2)
-- [ ] `P2-04` Create `services/api-gateway/routes/auth.py` — `POST /auth/token`
-- [ ] `P2-05` Create `services/api-gateway/routes/tickets.py`:
+- [x] `P2-01` Create `services/api-gateway/main.py` — FastAPI app with all routers mounted
+- [x] `P2-02` Create `services/api-gateway/auth.py` — JWT issue + verify, API key check (API_DESIGN.md §6)
+- [x] `P2-03` Create `services/api-gateway/models.py` — all Pydantic models (API_DESIGN.md §2)
+- [x] `P2-04` Create `services/api-gateway/routes/auth.py` — `POST /auth/token`
+- [x] `P2-05` Create `services/api-gateway/routes/tickets.py`:
   - `POST /tickets` — validate, sanitise input, enqueue, return 202
   - `GET /tickets/{id}` — poll status from Postgres
   - `GET /tickets/{id}/log` — return sanitised agent log for ticket
-- [ ] `P2-06` Create `services/api-gateway/routes/reports.py`:
+- [x] `P2-06` Create `services/api-gateway/routes/reports.py`:
   - `GET /reports/daily` and `GET /reports/daily/{date}`
   - `GET /reports/weekly`
-- [ ] `P2-07` Create `services/api-gateway/routes/ops.py`:
+- [x] `P2-07` Create `services/api-gateway/routes/ops.py`:
   - `GET /ops/agents`, `GET /ops/queue`, `GET /ops/cost`, `POST /ops/cost/reset`
   - `GET /ops/servers`
-- [ ] `P2-08` Create `services/api-gateway/routes/admin.py`:
+- [x] `P2-08` Create `services/api-gateway/routes/admin.py`:
   - CRUD for server fleet, manual maintenance trigger
-- [ ] `P2-09` Create `services/api-gateway/routes/system.py` — `/health`, `/metrics`
-- [ ] `P2-10` Create `services/api-gateway/middleware.py` — request ID injection, structured logging, rate limiter integration
-- [ ] `P2-11` Create `services/api-gateway/sanitiser.py` — `sanitise_ticket_input()`, `sanitise_log()` (SECURITY.md §5.1, §5.3)
-- [ ] `P2-12` Write Dockerfile for `api-gateway`
-- [ ] `P2-13` Write integration tests: auth flow, ticket submit+poll, rate limit enforcement
-- [ ] `P2-14` Create `infra/nginx/nginx.conf` — proxy to api-gateway, timeout config
+- [x] `P2-09` Create `services/api-gateway/routes/system.py` — `/health`, `/metrics`
+- [x] `P2-10` Create `services/api-gateway/middleware.py` — request ID injection, structured logging, rate limiter integration
+- [x] `P2-11` Create `services/api-gateway/sanitiser.py` — `sanitise_ticket_input()`, `sanitise_log()` (SECURITY.md §5.1, §5.3)
+- [x] `P2-12` Write Dockerfile for `api-gateway`
+- [x] `P2-13` Write integration tests: auth flow, ticket submit+poll, rate limit enforcement
+- [x] `P2-14` Create `infra/nginx/nginx.conf` — proxy to api-gateway, timeout config
 
 ---
 

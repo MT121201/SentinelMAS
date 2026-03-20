@@ -36,7 +36,9 @@ services:
 
   # ─── API Gateway ──────────────────────────────────────────
   api-gateway:
-    build: ./services/api-gateway
+    build:
+      context: .
+      dockerfile: services/api-gateway/Dockerfile
     environment:
       <<: *common-env
       JWT_SECRET_KEY: ${JWT_SECRET_KEY}
