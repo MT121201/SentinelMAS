@@ -142,16 +142,16 @@
 
 ## PHASE 6 — Client Agent
 
-- [ ] `P6-01` Create `services/client-agent/tools.py` — all tools: rag_search, web_search, web_fetch, ssh_execute, hard_restart, update_ticket_status, store_fix_pattern
-- [ ] `P6-02` Create `services/client-agent/web_search.py` — Tavily API client with fallback to SerpAPI
-- [ ] `P6-03` Create `services/client-agent/severity.py` — LLM classifier returning `LOW|MEDIUM|HIGH|CRITICAL`
-- [ ] `P6-04` Create `services/client-agent/graph.py` — full ticket resolution LangGraph (AGENT_DESIGN.md §1.3 workflow)
-- [ ] `P6-05` Create `services/client-agent/prompts.py` — system prompt (AGENT_DESIGN.md §1.3)
-- [ ] `P6-06` Create `services/client-agent/hard_restart.py` — BMC/IPMI reboot call + SSH fallback `reboot -f`; requires double-log confirmation
-- [ ] `P6-07` Create `services/client-agent/executor.py` — receive ticket task, run graph, update ticket status
-- [ ] `P6-08` Create `services/client-agent/main.py` — poll orchestrator for ticket tasks
-- [ ] `P6-09` Write Dockerfile for `client-agent`
-- [ ] `P6-10` Write tests: mock RAG responses, mock SSH, verify plan→execute→verify flow, verify hard restart double-confirmation
+- [x] `P6-01` Create `services/client-agent/tools.py` — all tools: rag_search, web_search, web_fetch, ssh_execute, hard_restart, update_ticket_status, store_fix_pattern
+- [x] `P6-02` Create `services/client-agent/web_search.py` — Tavily API client with fallback to SerpAPI
+- [x] `P6-03` Create `services/client-agent/severity.py` — LLM classifier returning `LOW|MEDIUM|HIGH|CRITICAL`
+- [x] `P6-04` Create `services/client-agent/graph.py` — full ticket resolution LangGraph (AGENT_DESIGN.md §1.3 workflow)
+- [x] `P6-05` Create `services/client-agent/prompts.py` — system prompt (AGENT_DESIGN.md §1.3)
+- [x] `P6-06` Create `services/client-agent/hard_restart.py` — BMC/IPMI reboot call + SSH fallback `reboot -f`; requires double-log confirmation
+- [x] `P6-07` Create `services/client-agent/executor.py` — receive ticket task, run graph, update ticket status
+- [x] `P6-08` Create `services/client-agent/main.py` — poll orchestrator for ticket tasks
+- [x] `P6-09` Write Dockerfile for `client-agent`
+- [x] `P6-10` Write tests: mock RAG responses, mock SSH, verify plan→execute→verify flow, verify hard restart double-confirmation
 
 ---
 

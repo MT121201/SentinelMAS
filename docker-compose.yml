@@ -119,7 +119,9 @@ services:
 
   # ─── Client Agent ─────────────────────────────────────────
   client-agent:
-    build: ./services/client-agent
+    build:
+      context: .
+      dockerfile: services/client-agent/Dockerfile
     environment:
       <<: *common-env
       AGENT_TYPE: client
