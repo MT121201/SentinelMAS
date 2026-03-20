@@ -134,6 +134,8 @@ Scheduler ──► orchestrator_queue ──► inserver-agent
 **Tools available to inserver-agent:**
 `ssh_execute` · `hard_restart` (BMC/IPMI stub → SSH reboot fallback) · `log_action` · `get_server_info`
 
+> **Deep dive →** [`services/inserver-agent/README.md`](services/inserver-agent/README.md) — graph nodes, tool signatures, health snapshot schema, failure modes.
+
 ### Client Plane — Ticket Resolution
 
 ```
@@ -158,6 +160,14 @@ User POST /tickets ──► client_queue ──► client-agent
 ```
 
 **Severity routing:** `CRITICAL` tickets skip RAG and go direct to SSH. `LOW` tickets try RAG-only first.
+
+> **Deep dive →** [`services/client-agent/README.md`](services/client-agent/README.md) — 5-node graph, tool list, severity routing table, RAG integration, escalation logic.
+
+### Report Agent — Operational Intelligence
+
+Every **Monday at 06:00 UTC** (and on-demand) the report agent aggregates the week's health snapshots and ticket outcomes into a structured report delivered via webhook or email.
+
+> **Deep dive →** [`services/report-agent/README.md`](services/report-agent/README.md) — formatter, sender, Jinja2 templates, delivery channels.
 
 ---
 
@@ -185,6 +195,8 @@ The **Supervisor** in `agent-orchestrator/supervisor.py` routes tasks from Redis
 | `report` | `report-agent` | `mas:report_queue` |
 
 **Worker pool** (`worker_pool.py`) enforces `MAX_CONCURRENT_AGENTS` (default 10) and runs a watchdog that logs `STUCK TASK` for any task exceeding 900 seconds.
+
+> **Deep dive →** [`services/agent-orchestrator/README.md`](services/agent-orchestrator/README.md) — supervisor routing logic, worker pool internals, APScheduler cron jobs, Redis consumer pattern.
 
 ---
 
@@ -226,6 +238,8 @@ Every SSH command is logged with `agent_id`, `trace_id`, `server_id`, `command_h
 - [`services/ssh-vault/vault.py`](services/ssh-vault/vault.py) — encryption/decryption, credential CRUD
 - [`services/ssh-vault/safety_filter.py`](services/ssh-vault/safety_filter.py) — `is_safe_command()` with 24 test cases
 - [`services/ssh-vault/session_manager.py`](services/ssh-vault/session_manager.py) — paramiko lifecycle, TTL management
+
+> **Deep dive →** [`services/ssh-vault/README.md`](services/ssh-vault/README.md) — AES-256-GCM encryption design, all 11 forbidden command patterns, session token lifecycle, audit log schema.
 
 ---
 
@@ -274,6 +288,8 @@ Query: "nvidia-smi shows GPU memory leak on A100"
 - [`services/rag-service/semantic_cache.py`](services/rag-service/semantic_cache.py) — cosine similarity cache layer
 - [`services/rag-service/embedder.py`](services/rag-service/embedder.py) — OpenAI async embedding client
 
+> **Deep dive →** [`services/rag-service/README.md`](services/rag-service/README.md) — full pipeline config, BM25 index design, RRF formula, cache TTL strategy, ingest/search API contract.
+
 ---
 
 ## LLMOps — Full Observability Stack
@@ -312,6 +328,8 @@ Access Grafana at `http://localhost:3001` (admin / see `.env` `GRAFANA_PASSWORD`
 
 Every FastAPI service exposes `/metrics` in Prometheus format via `prometheus-fastapi-instrumentator`. Promtail ships all structured JSON logs to Loki; Grafana queries both.
 
+> **Deep dive →** [`services/agent-orchestrator/README.md`](services/agent-orchestrator/README.md) — Langfuse tracer implementation, `_NoOpTrace` graceful degradation, span naming conventions.
+
 ### Structured Logging — `structlog` → Loki
 
 All services emit JSON logs with `trace_id`, `agent_id`, `task_id`, `ticket_id` injected via contextvars. No string formatting — every log line is a structured event queryable in Grafana Explore.
@@ -321,6 +339,8 @@ All services emit JSON logs with `trace_id`, `agent_id`, `task_id`, `ticket_id` 
  "trace_id": "abc-123", "agent_id": "client-agent-1",
  "server_id": "srv-gpu-07", "command_hash": "sha256:...", "exit_code": 0}
 ```
+
+> **Deep dive →** [`services/shared/README.md`](services/shared/README.md) — logger contextvars design, rate_limiter Lua script, DB session factory, Redis client singleton.
 
 ---
 
@@ -362,6 +382,8 @@ Prod overlay (docker-compose.prod.yml):
 | Service → Service | `X-Internal-Key` header (constant-time compare) | `/internal/*` endpoints |
 | User → Admin | Same JWT + admin role check | `/admin/*` endpoints |
 | Vault → Postgres | Direct asyncpg connection (no pgbouncer) | Credential read/write |
+
+> **Deep dive →** [`services/api-gateway/README.md`](services/api-gateway/README.md) — all routes, JWT auth flow, slowapi rate limiting, prompt injection sanitiser, request middleware.
 
 ---
 
