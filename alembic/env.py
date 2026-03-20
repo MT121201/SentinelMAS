@@ -16,12 +16,10 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 # ── Import Base + all model modules so autogenerate can detect schema ─────────
-from services.shared.db import Base  # noqa: E402
-
 try:
-    import services.ssh_vault.models  # noqa: E402, F401
+    from services.shared.db import Base  # noqa: E402 — when run from project root
 except ImportError:
-    pass
+    from shared.db import Base  # noqa: E402 — when run inside container
 
 # Future services: add their model imports here as they are built
 

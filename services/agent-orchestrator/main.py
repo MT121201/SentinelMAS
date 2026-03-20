@@ -25,7 +25,6 @@ from contextlib import asynccontextmanager
 
 import redis.asyncio as aioredis
 from apscheduler.executors.asyncio import AsyncIOExecutor
-from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from fastapi import FastAPI
 from prometheus_fastapi_instrumentator import Instrumentator
@@ -63,12 +62,9 @@ async def lifespan(app: FastAPI):
     # 4. Langfuse
     langfuse_tracer.init_tracer()
 
-    # 5. APScheduler (AsyncIO scheduler with PostgreSQL job store)
-    jobstores = {
-        "default": SQLAlchemyJobStore(url=settings.postgres_dsn_sync, tablename="apscheduler_jobs")
-    }
+    # 5. APScheduler (in-memory job store — jobs re-register at startup)
     executors = {"default": AsyncIOExecutor()}
-    scheduler = AsyncIOScheduler(jobstores=jobstores, executors=executors)
+    scheduler = AsyncIOScheduler(executors=executors)
     register_jobs(scheduler, redis, db_factory)
     scheduler.start()
     app.state.scheduler = scheduler

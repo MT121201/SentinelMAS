@@ -16,17 +16,18 @@ depends_on: Union[str, Sequence[str], None] = None
 
 def upgrade() -> None:
     # Schema expected by APScheduler's SQLAlchemyJobStore
-    op.create_table(
-        "apscheduler_jobs",
-        sa.Column("id", sa.String(191), primary_key=True),
-        sa.Column("next_run_time", sa.Float(precision=53), nullable=True),
-        sa.Column("job_state", sa.LargeBinary, nullable=False),
-    )
-    op.create_index(
-        "ix_apscheduler_jobs_next_run_time",
-        "apscheduler_jobs",
-        ["next_run_time"],
-    )
+    # Use execute for IF NOT EXISTS since op.create_table has no equivalent
+    op.execute("""
+        CREATE TABLE IF NOT EXISTS apscheduler_jobs (
+            id VARCHAR(191) NOT NULL PRIMARY KEY,
+            next_run_time DOUBLE PRECISION,
+            job_state BYTEA NOT NULL
+        )
+    """)
+    op.execute("""
+        CREATE INDEX IF NOT EXISTS ix_apscheduler_jobs_next_run_time
+        ON apscheduler_jobs (next_run_time)
+    """)
 
 
 def downgrade() -> None:

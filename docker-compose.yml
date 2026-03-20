@@ -43,6 +43,8 @@ services:
       <<: *common-env
       JWT_SECRET_KEY: ${JWT_SECRET_KEY}
       INTERNAL_API_KEY: ${INTERNAL_API_KEY}
+      # bcrypt hash of "SentinelAdmin2026" — dollar signs escaped as $$ for compose interpolation
+      ADMIN_PASSWORD_HASH: "$$2b$$12$$U8PF/cI2CfTGmWXxOMrSmue3pEYZq2.J7qzA7OheoVvbDeqBxHiQS"
     networks:
       - public
       - internal
@@ -71,6 +73,7 @@ services:
       INTERNAL_API_KEY: ${INTERNAL_API_KEY}
       ORCHESTRATOR_URL: http://orchestrator:8001
       MAX_CONCURRENT_AGENTS: ${MAX_CONCURRENT_AGENTS:-10}
+      POSTGRES_DSN_SYNC: postgresql://mas:${POSTGRES_PASSWORD}@postgres:5432/masdb
     networks:
       - internal
     depends_on:
@@ -185,6 +188,8 @@ services:
       CACHE_TTL_ACTIVE: 3600
       CACHE_TTL_STATIC: 86400
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      HF_HUB_OFFLINE: "1"
+      TRANSFORMERS_OFFLINE: "1"
     networks:
       - internal
     depends_on:
@@ -227,19 +232,6 @@ services:
       retries: 3
       start_period: 40s
 
-  # ─── Scheduler ────────────────────────────────────────────
-  scheduler:
-    build: ./services/scheduler
-    environment:
-      <<: *common-env
-      ORCHESTRATOR_URL: http://orchestrator:8001
-      INTERNAL_API_KEY: ${INTERNAL_API_KEY}
-    networks:
-      - internal
-    depends_on:
-      - orchestrator
-      - pgbouncer
-
   # ─── LLMOps (Langfuse) ────────────────────────────────────
   llmops:
     image: langfuse/langfuse:2.56.1
@@ -252,6 +244,7 @@ services:
       - "3000:3000"   # internal access only in prod
     networks:
       - internal
+      - public
     depends_on:
       - postgres
 
@@ -280,12 +273,13 @@ services:
 
   # ─── PgBouncer ────────────────────────────────────────────
   pgbouncer:
-    image: edoburu/pgbouncer:1.22.0
+    image: edoburu/pgbouncer:latest
     environment:
       DATABASE_URL: postgres://mas:${POSTGRES_PASSWORD}@postgres:5432/masdb
       POOL_MODE: transaction
       MAX_CLIENT_CONN: 200
       DEFAULT_POOL_SIZE: 20
+      AUTH_TYPE: scram-sha-256
     networks:
       - internal
     depends_on:
@@ -329,7 +323,7 @@ services:
           cpus: "1.0"
           memory: "1G"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:6333/readyz"]
+      test: ["CMD-SHELL", "timeout 3 bash -c 'cat < /dev/null > /dev/tcp/localhost/6333'"]
       interval: 15s
       timeout: 5s
       retries: 5
@@ -355,11 +349,11 @@ services:
     volumes:
       - grafana_data:/var/lib/grafana
       - ./infra/grafana/provisioning:/etc/grafana/provisioning:ro
-      - ./infra/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
     ports:
       - "3001:3000"
     networks:
       - internal
+      - public
     depends_on:
       - prometheus
       - loki

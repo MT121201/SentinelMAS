@@ -1,0 +1,184 @@
+{
+  "__inputs": [],
+  "__requires": [
+    {"type": "grafana", "id": "grafana", "name": "Grafana", "version": "10.4.0"},
+    {"type": "datasource", "id": "prometheus", "name": "Prometheus", "version": "1.0.0"}
+  ],
+  "annotations": {"list": []},
+  "description": "SentinelMAS — Per-server health scores, uptime trend, GPU metrics",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "fieldConfig": {
+        "defaults": {"color": {"mode": "thresholds"}, "mappings": [
+          {"options": {"1": {"color": "green", "text": "Healthy"}, "0": {"color": "red", "text": "Critical"}}, "type": "value"}
+        ],
+          "thresholds": {"mode": "absolute", "steps": [
+            {"color": "red", "value": null},
+            {"color": "green", "value": 1}
+          ]}
+        }
+      },
+      "gridPos": {"h": 4, "w": 6, "x": 0, "y": 0},
+      "id": 1,
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "orientation": "auto", "textMode": "auto", "colorMode": "background"},
+      "title": "Servers Healthy",
+      "type": "stat",
+      "targets": [{"datasource": {"uid": "prometheus"}, "expr": "count(mas_server_health_status == 1)", "legendFormat": "healthy"}]
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "fieldConfig": {
+        "defaults": {"color": {"mode": "thresholds"}, "mappings": [],
+          "thresholds": {"mode": "absolute", "steps": [
+            {"color": "green", "value": null},
+            {"color": "yellow", "value": 1},
+            {"color": "red", "value": 3}
+          ]}
+        }
+      },
+      "gridPos": {"h": 4, "w": 6, "x": 6, "y": 0},
+      "id": 2,
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "orientation": "auto", "textMode": "auto", "colorMode": "background"},
+      "title": "Servers Critical / Unreachable",
+      "type": "stat",
+      "targets": [{"datasource": {"uid": "prometheus"}, "expr": "count(mas_server_health_status == 0) or vector(0)", "legendFormat": "critical"}]
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "thresholds": {"mode": "absolute", "steps": [
+            {"color": "red", "value": null},
+            {"color": "yellow", "value": 85},
+            {"color": "green", "value": 99}
+          ]},
+          "unit": "percent"
+        }
+      },
+      "gridPos": {"h": 4, "w": 6, "x": 12, "y": 0},
+      "id": 3,
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "orientation": "auto", "textMode": "auto", "colorMode": "background"},
+      "title": "Fleet Uptime (7-day avg)",
+      "type": "stat",
+      "targets": [{"datasource": {"uid": "prometheus"}, "expr": "avg(mas_server_uptime_7d_pct)", "legendFormat": "fleet uptime"}]
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "fieldConfig": {
+        "defaults": {"color": {"mode": "thresholds"}, "mappings": [],
+          "thresholds": {"mode": "absolute", "steps": [
+            {"color": "green", "value": null},
+            {"color": "yellow", "value": 80},
+            {"color": "red", "value": 90}
+          ]},
+          "unit": "celsius"
+        }
+      },
+      "gridPos": {"h": 4, "w": 6, "x": 18, "y": 0},
+      "id": 4,
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "orientation": "auto", "textMode": "auto", "colorMode": "background"},
+      "title": "Max GPU Temperature",
+      "type": "stat",
+      "targets": [{"datasource": {"uid": "prometheus"}, "expr": "max(mas_server_gpu_temp_celsius)", "legendFormat": "max GPU temp"}]
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "fixed", "fixedColor": "blue"},
+          "custom": {"lineWidth": 2, "fillOpacity": 10},
+          "thresholds": {"mode": "absolute", "steps": [
+            {"color": "green", "value": null},
+            {"color": "red", "value": 85}
+          ]},
+          "unit": "percent"
+        },
+        "overrides": [
+          {"matcher": {"id": "byName", "options": "warning threshold"},
+           "properties": [{"id": "custom.lineStyle", "value": {"fill": "dash", "dash": [5, 5]}},
+                          {"id": "color", "value": {"mode": "fixed", "fixedColor": "orange"}}]}
+        ]
+      },
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 4},
+      "id": 5,
+      "options": {"tooltip": {"mode": "multi"}, "legend": {"displayMode": "list", "placement": "bottom"}},
+      "title": "GPU Temperature by Server",
+      "type": "timeseries",
+      "targets": [
+        {"datasource": {"uid": "prometheus"}, "expr": "mas_server_gpu_temp_celsius", "legendFormat": "{{hostname}}"},
+        {"datasource": {"uid": "prometheus"}, "expr": "vector(85)", "legendFormat": "warning threshold"}
+      ]
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {"lineWidth": 2, "fillOpacity": 10},
+          "unit": "percent", "min": 0, "max": 100
+        }
+      },
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 4},
+      "id": 6,
+      "options": {"tooltip": {"mode": "multi"}, "legend": {"displayMode": "list", "placement": "bottom"}},
+      "title": "Disk Usage by Server",
+      "type": "timeseries",
+      "targets": [
+        {"datasource": {"uid": "prometheus"}, "expr": "mas_server_disk_usage_pct", "legendFormat": "{{hostname}}"}
+      ]
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {"lineWidth": 2, "fillOpacity": 10},
+          "unit": "percent", "min": 0, "max": 100
+        }
+      },
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 12},
+      "id": 7,
+      "options": {"tooltip": {"mode": "multi"}, "legend": {"displayMode": "list", "placement": "bottom"}},
+      "title": "Memory Usage by Server",
+      "type": "timeseries",
+      "targets": [
+        {"datasource": {"uid": "prometheus"}, "expr": "mas_server_memory_usage_pct", "legendFormat": "{{hostname}}"}
+      ]
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {"lineWidth": 2, "fillOpacity": 10},
+          "unit": "percent", "min": 0, "max": 100
+        }
+      },
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 12},
+      "id": 8,
+      "options": {"tooltip": {"mode": "multi"}, "legend": {"displayMode": "list", "placement": "bottom"}},
+      "title": "GPU Memory Usage by Server",
+      "type": "timeseries",
+      "targets": [
+        {"datasource": {"uid": "prometheus"}, "expr": "mas_server_gpu_memory_pct", "legendFormat": "{{hostname}}"}
+      ]
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 39,
+  "tags": ["sentinelmas", "fleet", "servers", "gpu"],
+  "templating": {"list": []},
+  "time": {"from": "now-3h", "to": "now"},
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "SentinelMAS — Server Fleet Health",
+  "uid": "sentinelmas-fleet",
+  "version": 1
+}

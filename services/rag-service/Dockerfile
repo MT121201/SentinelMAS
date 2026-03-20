@@ -11,7 +11,8 @@ WORKDIR /app
 COPY services/rag-service/requirements.txt ./requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Download cross-encoder model at build time so containers start instantly
+# Download cross-encoder model to a fixed path accessible at runtime
+ENV HF_HOME=/app/.cache/huggingface
 RUN python -c "from sentence_transformers import CrossEncoder; CrossEncoder('cross-encoder/ms-marco-MiniLM-L-6-v2')"
 
 COPY services/rag-service/ ./
@@ -23,6 +24,7 @@ USER appuser
 ENV PYTHONPATH=/app
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
+ENV HF_HOME=/app/.cache/huggingface
 
 EXPOSE 8005
 
