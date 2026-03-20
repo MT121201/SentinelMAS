@@ -103,22 +103,22 @@
 
 ## PHASE 4 — Agent Orchestrator
 
-- [ ] `P4-01` Create `services/agent-orchestrator/state.py` — `AgentState` TypedDict (AGENT_DESIGN.md §2)
-- [ ] `P4-02` Create `services/agent-orchestrator/supervisor.py` — LangGraph `StateGraph` with conditional routing
-- [ ] `P4-03` Create `services/agent-orchestrator/worker_pool.py` — `asyncio.Semaphore` pool, task dispatch, stuck-task watchdog
-- [ ] `P4-04` Create `services/agent-orchestrator/consumer.py` — Redis queue consumer loop, dispatches to worker pool
-- [ ] `P4-05` Create `services/agent-orchestrator/main.py` — starts consumer + APScheduler
-- [ ] `P4-06` Create `services/agent-orchestrator/scheduler_jobs.py`:
+- [x] `P4-01` Create `services/agent-orchestrator/state.py` — `AgentState` TypedDict (AGENT_DESIGN.md §2)
+- [x] `P4-02` Create `services/agent-orchestrator/supervisor.py` — LangGraph `StateGraph` with conditional routing
+- [x] `P4-03` Create `services/agent-orchestrator/worker_pool.py` — `asyncio.Semaphore` pool, task dispatch, stuck-task watchdog
+- [x] `P4-04` Create `services/agent-orchestrator/consumer.py` — Redis queue consumer loop, dispatches to worker pool
+- [x] `P4-05` Create `services/agent-orchestrator/main.py` — starts consumer + APScheduler
+- [x] `P4-06` Create `services/agent-orchestrator/scheduler_jobs.py`:
   - `daily_inserver_check` — enqueue maintenance task for all active servers
   - `weekly_report` — enqueue report generation task
   - `hourly_cache_cleanup` — clear expired Redis entries
-- [ ] `P4-07` Create `services/agent-orchestrator/langfuse_tracer.py` — wrap LLM calls with Langfuse trace decorator, token recording
-- [ ] `P4-08` Create `services/agent-orchestrator/routes.py` — internal API:
+- [x] `P4-07` Create `services/agent-orchestrator/langfuse_tracer.py` — wrap LLM calls with Langfuse trace decorator, token recording
+- [x] `P4-08` Create `services/agent-orchestrator/routes.py` — internal API:
   - `POST /internal/tasks` — accept task enqueue from gateway
   - `PUT /internal/tasks/{id}/status` — agents report status
   - `GET /ops/agents` — live state view
   - `GET /ops/queue` — queue metrics
-- [ ] `P4-09` Write Dockerfile for `agent-orchestrator`
+- [x] `P4-09` Write Dockerfile for `agent-orchestrator`
 
 ---
 

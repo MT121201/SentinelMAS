@@ -63,7 +63,9 @@ services:
 
   # ─── Orchestrator ─────────────────────────────────────────
   orchestrator:
-    build: ./services/agent-orchestrator
+    build:
+      context: .
+      dockerfile: services/agent-orchestrator/Dockerfile
     environment:
       <<: *common-env
       INTERNAL_API_KEY: ${INTERNAL_API_KEY}
