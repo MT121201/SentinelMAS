@@ -8,6 +8,240 @@ Built on **LangGraph + Anthropic Claude**, deployed as **9 Docker services** wit
 
 ---
 
+```
+╔══════════════════════════════════════════════════════════════════════════════════╗
+║                                                                                  ║
+║    ███████╗███████╗███╗   ██╗████████╗██╗███╗   ██╗███████╗██╗                 ║
+║    ██╔════╝██╔════╝████╗  ██║╚══██╔══╝██║████╗  ██║██╔════╝██║                 ║
+║    ███████╗█████╗  ██╔██╗ ██║   ██║   ██║██╔██╗ ██║█████╗  ██║                 ║
+║    ╚════██║██╔══╝  ██║╚██╗██║   ██║   ██║██║╚██╗██║██╔══╝  ██║                 ║
+║    ███████║███████╗██║ ╚████║   ██║   ██║██║ ╚████║███████╗███████╗            ║
+║    ╚══════╝╚══════╝╚═╝  ╚═══╝   ╚═╝   ╚═╝╚═╝  ╚═══╝╚══════╝╚══════╝            ║
+║                                                                                  ║
+║         M U L T I - A G E N T   G P U   I N F R A S T R U C T U R E           ║
+║                    Autonomous · Secure · Self-Healing · 24/7/365                ║
+╚══════════════════════════════════════════════════════════════════════════════════╝
+```
+
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ◈  SCENE I  ·  14 : 32  UTC  ·  A CUSTOMER IS STUCK, DEADLINE TOMORROW
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  💬  user  »  "gpu mem keeps throwing ECC ERR!! i cant do anything on this box"
+  💬  user  »  "why is this code not running, it was fine yesterday wtf"
+  💬  user  »  "how do i even install the right cuda version, no idea where to start"
+
+                              POST /tickets
+                                   │
+          ┌────────────────────────▼────────────────────────┐
+          │              api-gateway  :8000                  │
+          │                                                   │
+          │  ✦ sanitise_ticket_input()                        │
+          │    └─ HTML stripped · prompt-injection purged     │
+          │    └─ PII redacted  · 4 000 char cap enforced     │
+          └────────────────────────┬────────────────────────┘
+                                   │  RPUSH  →  mas:client_queue
+                                   │
+          ┌────────────────────────▼────────────────────────┐
+          │          agent-orchestrator  :8001               │
+          │                                                   │
+          │  BLPOP  →  classify  →  Severity : HIGH          │
+          │                         Type     : GPU_MEMORY     │
+          │  Route  →  client-agent worker pool               │
+          └──────┬──────────────────────────┬───────────────┘
+                 │                          │
+     ┌───────────▼──────────┐   ┌───────────▼───────────────────────┐
+     │    rag-service :8005  │   │        ssh-vault :8100             │
+     │                       │   │                                    │
+     │  Cache miss           │   │  GET /vault/session/srv-gpu-07    │
+     │  ├─ Dense  (Qdrant)   │   │  AES-256-GCM decrypt              │
+     │  │   "ECC mem remap"  │   │  paramiko session  TTL 300s       │
+     │  │   score: 0.93 ✓    │   │                                    │
+     │  ├─ Sparse (BM25)     │   │  ⚠  RAW KEY : NEVER LEAVES VAULT  │
+     │  │   "nvidia-smi err" │   │      agent sees session token only │
+     │  └─ Rerank top-3      │   └─────────────────┬─────────────────┘
+     │    ✓ known fix found  │                      │
+     └───────────┬───────────┘                      │
+                 │  fix recipe                      │  session token
+                 └──────────────────┬───────────────┘
+                                    │
+          ┌─────────────────────────▼───────────────────────┐
+          │             client-agent  :8003                  │
+          │         LangGraph 5-node StateGraph              │
+          │                                                   │
+          │  classify → rag_search → execute → verify → close│
+          │                                                   │
+          │  is_safe_command("nvidia-smi --gpu-reset")  ✓    │
+          │  is_safe_command("nvidia-smi -r -i 0")      ✓    │
+          │  Executing on srv-gpu-07 via vault session...    │
+          │                                                   │
+          │  GPU memory reset  ████████████████  OK          │
+          │  ECC rows cleared  ████████████████  OK          │
+          │  CUDA re-init      ████████████████  OK          │
+          │  Verify: nvidia-smi → Temp 94°C  →  57°C  ✓     │
+          │  Verify: job re-submitted         → RUNNING ✓    │
+          └─────────────────────────┬───────────────────────┘
+                                    │
+                     ┌──────────────▼─────────────┐
+                     │  rag-service  /rag/ingest   │
+                     │  Fix confirmed → KB entry   │
+                     │  Learns for next ticket ✓   │
+                     └────────────────────────────┘
+
+  [ticket#4821]  Status: DONE  ·  Auto-resolved: YES  ·  Duration: 43 s
+
+  💬  user  »  "wait it just fixed itself?? ok that was actually insane"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ◈  SCENE II  ·  00 : 05  UTC  ·  THE NIGHTWATCHER BEGINS ITS ROUNDS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+         〔  Everyone is asleep.  SentinelMAS is not.  〕
+
+  [APScheduler]  00:05:00  →  daily_inserver_check  fired
+                               24 servers in fleet
+                               Dispatching to mas:inserver_queue ...
+
+  ┌───────────────────────────────────────────────────────────────────────┐
+  │ server         │ GPU     │ disk     │ mem      │ action taken         │
+  ├───────────────────────────────────────────────────────────────────────┤
+  │ srv-gpu-01     │  54°C ✓ │  41%  ✓ │  62%  ✓ │ —  all clear         │
+  │ srv-gpu-02     │  67°C ✓ │  88%  ⚠ │  59%  ✓ │ log rotation → 61% ✓│
+  │ srv-gpu-03     │  59°C ✓ │  44%  ✓ │  93%  ⚠ │ drop_caches  → 70% ✓│
+  │ srv-gpu-04     │  —      │  —      │  —      │ SSH timeout × 3      │
+  │                │         │         │         │ → snapshot: UNREACHABLE
+  │                │         │         │         │ → on-call paged  🔔   │
+  │ srv-gpu-05     │  61°C ✓ │  46%  ✓ │  68%  ✓ │ fail2ban: 847 IPs   │
+  │                │         │         │         │   blocked → reload ✓ │
+  │ srv-gpu-09     │  72°C ✓ │  39%  ✓ │  74%  ✓ │ clock drift reset ✓ │
+  │ srv-gpu-14     │  55°C ✓ │  91%  ⚠ │  60%  ✓ │ core dump purge      │
+  │                │         │         │         │   → 55% ✓            │
+  │ srv-gpu-18     │  63°C ✓ │  48%  ✓ │  66%  ✓ │ SSH blacklisted →   │
+  │                │         │         │         │   unban + key rotate ✓
+  │ srv-gpu-21     │  58°C ✓ │  52%  ✓ │  96%  ⚠ │ OOM near-miss →     │
+  │                │         │         │         │   priority rebalance ✓
+  │ srv-gpu-22..24 │   ✓     │   ✓     │   ✓     │ —  all clear         │
+  └───────────────────────────────────────────────────────────────────────┘
+
+  [inserver-agent]  00:23:14  ·  Probed: 24  ·  Fixed: 7  ·  Unreachable: 1
+                               ·  Snapshots saved to daily_health_snapshots
+                               ·  Human pages sent: 1  (srv-gpu-04 only)
+
+         〔  7 servers self-healed overnight.  Zero human effort.  〕
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ◈  SCENE III  ·  08 : 01  UTC  ·  MANAGER ARRIVES WITH COFFEE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  💬  manager  »  "had a good sleep, did anything happen last night?"
+
+  ┌──────────────────────────────────────────────────────────────────────────┐
+  │  DAILY OPERATIONS SUMMARY  ·  2026-03-21  ·  Auto-generated  00:24 UTC  │
+  ├──────────────────────────────────────────────────────────────────────────┤
+  │  Fleet Health                                                            │
+  │  ● 24 servers probed   ● 23 healthy   ● 1 unreachable  (srv-gpu-04)     │
+  │                                                                          │
+  │  Auto-Remediation   (while you slept)                                   │
+  │  ✓  srv-gpu-02  Disk  88% → 61%    log rotation                        │
+  │  ✓  srv-gpu-03  Mem   93% → 70%    kernel cache flush                  │
+  │  ✓  srv-gpu-05  847 IPs blocked    fail2ban reload                      │
+  │  ✓  srv-gpu-09  Clock drift        nvidia-smi reset                     │
+  │  ✓  srv-gpu-14  Disk  91% → 55%    core dump cleanup                   │
+  │  ✓  srv-gpu-18  SSH blacklisted    unban + root key rotated             │
+  │  ✓  srv-gpu-21  OOM near-miss      process priority rebalanced          │
+  │                                                                          │
+  │  Customer Tickets  (last 24 h)                                          │
+  │  Received: 11   Auto-resolved: 10   Escalated: 1   Open: 0             │
+  │  Avg resolution time: 58 s                                              │
+  │                                                                          │
+  │  ⚠  ACTION NEEDED: srv-gpu-04 unreachable — please verify power / BMC  │
+  └──────────────────────────────────────────────────────────────────────────┘
+
+  💬  manager  »  "only 1 thing to check, everything else just handled itself"
+  💬  manager  »  "ok this is genuinely what i bought this system for"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ◈  SCENE IV  ·  REAL-TIME  ·  OPS TEAM WATCHES THE SYSTEM RUN
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ┌──────────────────────────────────────────────────────────────────────────┐
+  │  LIVE OPS DASHBOARD  ·  GET /ops/dashboard                              │
+  ├──────────────────────────────────────────────────────────────────────────┤
+  │                                                                          │
+  │  AGENTS                              QUEUES                             │
+  │  ● client-agent-1    executing       client_queue    ▓▓░░░░  2 pending  │
+  │  ● client-agent-2    executing       inserver_queue  ░░░░░░  0 pending  │
+  │  ○ client-agent-3    idle            report_queue    ░░░░░░  0 pending  │
+  │  ○ inserver-agent    idle                                                │
+  │                                                                          │
+  │  COST GUARD  (today)                           [shared/rate_limiter.py] │
+  │  RPM   ████████████░░░░░░░░  43 / 60    (72%)                          │
+  │  TPM   ███████░░░░░░░░░░░░░  73k / 100k (73%)                          │
+  │  USD   ████░░░░░░░░░░░░░░░░  $19.20 / $50.00        ← well within cap  │
+  │                                                                          │
+  │  LANGFUSE TRACES          STRUCTLOG  (Loki)                             │
+  │  ticket#4821  43s  ✓      {"event":"rag_search","cache":false,         │
+  │  ticket#4822  31s  ●       "dense_score":0.93,"bm25_hits":4}           │
+  │  ticket#4823   8s  ●      {"event":"ssh_execute","exit_code":0,        │
+  │  maint#0318   18m  ✓       "command_hash":"sha256:a3f…","safe":true}   │
+  │                                                                          │
+  │  Grafana :3001  ·  Agent Overview  /  Token Spend  /  Server Fleet     │
+  └──────────────────────────────────────────────────────────────────────────┘
+
+  💬  ops-eng  »  "all agents green, cost under half limit, nothing to do here"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ◈  THE FIVE SAFETY LAYERS  ·  No command reaches a server unchecked.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Internet  (ticket text / admin call)
+      │
+      │   ╔══ LAYER 1 — Network perimeter ══════════════════════════════════╗
+      │   ║  nginx  +  slowapi                                              ║
+      │   ║  DDoS rate-limit · /internal/* unreachable from public net     ║
+      │   ║  Request-ID injected on every hop for full trace correlation   ║
+      │   ╚═════════════════════════════════════════════════════════════════╝
+      │
+      │   ╔══ LAYER 2 — Input sanitisation ═════════════════════════════════╗
+      │   ║  api-gateway  sanitiser.py                                      ║
+      │   ║  HTML tags stripped · <|...|> prompt-injection markers purged  ║
+      │   ║  ###System: / [INST] injections neutralised · 4 000 char cap   ║
+      │   ╚═════════════════════════════════════════════════════════════════╝
+      │
+      │   ╔══ LAYER 3 — Zero-trust credential vault ════════════════════════╗
+      │   ║  ssh-vault  vault.py  +  session_manager.py                     ║
+      │   ║  SSH keys encrypted at rest with AES-256-GCM                   ║
+      │   ║  Agents receive short-lived session tokens (TTL 300s) only     ║
+      │   ║  Every session: agent_id · server_id · command_hash logged     ║
+      │   ╚═════════════════════════════════════════════════════════════════╝
+      │
+      │   ╔══ LAYER 4 — Command safety filter ══════════════════════════════╗
+      │   ║  ssh-vault  safety_filter.py  (24 test cases)                   ║
+      │   ║  BLOCKED:  rm -rf  ·  mkfs  ·  dd  ·  iptables --flush        ║
+      │   ║  BLOCKED:  wget|bash  ·  curl|sh  ·  fork-bomb  ·  /etc/shadow║
+      │   ║  BLOCKED:  reboot (unapproved)  ·  >  /dev/sda  ·  poweroff   ║
+      │   ╚═════════════════════════════════════════════════════════════════╝
+      │
+      │   ╔══ LAYER 5 — LLM cost circuit-breaker ══════════════════════════╗
+      │   ║  shared  rate_limiter.py  (atomic Redis Lua token-bucket)      ║
+      │   ║  3-gate check:  RPM  ≤ limit  ·  TPM  ≤ limit  ·  USD ≤ cap  ║
+      │   ║  Returns False → agent queues retry, ticket never dropped      ║
+      │   ╚═════════════════════════════════════════════════════════════════╝
+      │
+   GPU Server  ← command arrives only after all five gates pass
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Tickets auto-resolved while engineers focus on what actually matters.
+  Servers self-healed while managers sleep.
+  Every LLM call traced. Every SSH command logged. Every dollar counted.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+---
+
 ## Table of Contents
 
 1. [What It Does](#what-it-does)
