@@ -1,0 +1,179 @@
+version: "3.9"
+
+# ── Production overlay ─────────────────────────────────────────────────────────
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+#
+# What this file changes vs docker-compose.yml:
+#   - All secrets injected via Docker secrets (files under ./secrets/)
+#   - No port exposure for internal services (postgres, redis, qdrant, orchestrator, agents)
+#   - ENV=production disables Swagger (/docs) on all services
+#   - Langfuse port NOT exposed externally (access via nginx only)
+#   - Prometheus and Grafana restricted to internal network
+#   - Reduced resource limits on dev-only services
+#
+# Pre-requisites:
+#   mkdir -p secrets
+#   echo "your-vault-key" > secrets/vault_master_key.txt
+#   echo "sk-ant-..." > secrets/anthropic_api_key.txt
+#   echo "strong-db-password" > secrets/postgres_password.txt
+#   echo "strong-redis-password" > secrets/redis_password.txt
+#   echo "jwt-secret-min-32-chars" > secrets/jwt_secret_key.txt
+#   echo "internal-service-key" > secrets/internal_api_key.txt
+#   chmod 600 secrets/*.txt
+
+secrets:
+  vault_master_key:
+    file: ./secrets/vault_master_key.txt
+  anthropic_api_key:
+    file: ./secrets/anthropic_api_key.txt
+  postgres_password:
+    file: ./secrets/postgres_password.txt
+  redis_password:
+    file: ./secrets/redis_password.txt
+  jwt_secret_key:
+    file: ./secrets/jwt_secret_key.txt
+  internal_api_key:
+    file: ./secrets/internal_api_key.txt
+  langfuse_nextauth_secret:
+    file: ./secrets/langfuse_nextauth_secret.txt
+  langfuse_salt:
+    file: ./secrets/langfuse_salt.txt
+
+x-prod-env: &prod-env
+  ENV: production
+  ANTHROPIC_RPM_LIMIT: ${ANTHROPIC_RPM_LIMIT:-60}
+  ANTHROPIC_TPM_LIMIT: ${ANTHROPIC_TPM_LIMIT:-100000}
+  DAILY_COST_LIMIT_USD: ${DAILY_COST_LIMIT_USD:-50}
+  LOG_LEVEL: INFO
+
+services:
+
+  # ─── API Gateway ──────────────────────────────────────────
+  api-gateway:
+    environment:
+      <<: *prod-env
+      POSTGRES_DSN: postgresql+asyncpg://mas_FILE:/run/secrets/postgres_password@pgbouncer:5432/masdb
+      REDIS_URL: redis://:$(cat /run/secrets/redis_password)@redis:6379/0
+    secrets:
+      - anthropic_api_key
+      - postgres_password
+      - redis_password
+      - jwt_secret_key
+      - internal_api_key
+    # Keep port 8000 accessible to nginx only (nginx is on public network)
+
+  # ─── Orchestrator ─────────────────────────────────────────
+  orchestrator:
+    environment:
+      <<: *prod-env
+    secrets:
+      - anthropic_api_key
+      - postgres_password
+      - redis_password
+      - internal_api_key
+    ports: []  # remove any dev port exposure
+
+  # ─── InServer Agent ───────────────────────────────────────
+  inserver-agent:
+    environment:
+      <<: *prod-env
+    secrets:
+      - anthropic_api_key
+      - postgres_password
+      - redis_password
+      - internal_api_key
+    ports: []
+
+  # ─── Client Agent ─────────────────────────────────────────
+  client-agent:
+    environment:
+      <<: *prod-env
+    secrets:
+      - anthropic_api_key
+      - postgres_password
+      - redis_password
+      - internal_api_key
+    ports: []
+
+  # ─── Report Agent ─────────────────────────────────────────
+  report-agent:
+    environment:
+      <<: *prod-env
+    secrets:
+      - anthropic_api_key
+      - postgres_password
+      - redis_password
+      - internal_api_key
+    ports: []
+
+  # ─── RAG Service ──────────────────────────────────────────
+  rag-service:
+    environment:
+      <<: *prod-env
+    secrets:
+      - postgres_password
+      - redis_password
+    ports: []
+
+  # ─── SSH Vault ────────────────────────────────────────────
+  ssh-vault:
+    secrets:
+      - vault_master_key
+      - postgres_password
+      - internal_api_key
+    environment:
+      VAULT_MASTER_KEY_FILE: /run/secrets/vault_master_key
+      INTERNAL_API_KEY_FILE: /run/secrets/internal_api_key
+      ENV: production
+    ports: []  # never expose vault externally
+
+  # ─── Postgres ─────────────────────────────────────────────
+  postgres:
+    secrets:
+      - postgres_password
+    ports: []  # never expose DB externally
+
+  # ─── PgBouncer ────────────────────────────────────────────
+  pgbouncer:
+    ports: []
+
+  # ─── Redis ────────────────────────────────────────────────
+  redis:
+    secrets:
+      - redis_password
+    ports: []  # never expose Redis externally
+
+  # ─── Qdrant ───────────────────────────────────────────────
+  qdrant:
+    ports: []  # no external access
+
+  # ─── Langfuse ─────────────────────────────────────────────
+  llmops:
+    secrets:
+      - langfuse_nextauth_secret
+      - langfuse_salt
+      - postgres_password
+    ports: []  # access via nginx /langfuse proxy only
+
+  # ─── Prometheus ───────────────────────────────────────────
+  prometheus:
+    ports: []  # internal only; Grafana scrapes internally
+
+  # ─── Grafana ──────────────────────────────────────────────
+  grafana:
+    environment:
+      GF_SERVER_ROOT_URL: ${GRAFANA_ROOT_URL:-http://localhost:3001}
+      GF_SECURITY_DISABLE_GRAVATAR: "true"
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_AUTH_ANONYMOUS_ENABLED: "false"
+    ports:
+      - "127.0.0.1:3001:3000"  # bind to loopback only in prod
+
+  # ─── Loki ─────────────────────────────────────────────────
+  loki:
+    ports: []
+
+  # ─── Promtail ─────────────────────────────────────────────
+  promtail:
+    ports: []

@@ -8,6 +8,7 @@ Lifespan:
 """
 
 import logging
+import os
 
 import redis.asyncio as aioredis
 from contextlib import asynccontextmanager
@@ -56,11 +57,13 @@ async def lifespan(app: FastAPI):
     await engine.dispose()
 
 
+_is_dev = os.environ.get("ENV", "production").lower() == "development"
+
 app = FastAPI(
     title="RAG Service",
     version="1.0.0",
     lifespan=lifespan,
-    docs_url="/docs",
+    docs_url="/docs" if _is_dev else None,
     redoc_url=None,
 )
 

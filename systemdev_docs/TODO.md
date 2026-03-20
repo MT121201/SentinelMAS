@@ -197,14 +197,14 @@
 
 ## PHASE 10 — Hardening & Delivery
 
-- [ ] `P10-01` Pin all Docker image versions in compose files
-- [ ] `P10-02` Create `docker-compose.prod.yml` with Docker secrets, no port exposure for internal services
-- [ ] `P10-03` Add `HEALTHCHECK` to every Dockerfile
-- [ ] `P10-04` Create `Makefile` targets: `generate-vault-key`, `rotate-jwt-secret`, `backup-db`
-- [ ] `P10-05` Write `docs/RUNBOOK.md` — how to scale, how to add a server, how to rotate secrets, how to investigate a stuck agent
-- [ ] `P10-06` Write `docs/ONBOARDING.md` — first-time setup guide for ops team
-- [ ] `P10-07` Disable `/docs` (Swagger) in production env
-- [ ] `P10-08` Final security review against SECURITY.md checklist
+- [x] `P10-01` Pin all Docker image versions in compose files
+- [x] `P10-02` Create `docker-compose.prod.yml` with Docker secrets, no port exposure for internal services
+- [x] `P10-03` Add `HEALTHCHECK` to every Dockerfile
+- [x] `P10-04` Create `Makefile` targets: `generate-vault-key`, `rotate-jwt-secret`, `backup-db`
+- [x] `P10-05` Write `docs/RUNBOOK.md` — how to scale, how to add a server, how to rotate secrets, how to investigate a stuck agent
+- [x] `P10-06` Write `docs/ONBOARDING.md` — first-time setup guide for ops team
+- [x] `P10-07` Disable `/docs` (Swagger) in production env
+- [x] `P10-08` Final security review against SECURITY.md checklist
 
 ---
 

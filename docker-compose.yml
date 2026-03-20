@@ -242,7 +242,7 @@ services:
 
   # ─── LLMOps (Langfuse) ────────────────────────────────────
   llmops:
-    image: langfuse/langfuse:2
+    image: langfuse/langfuse:2.56.1
     environment:
       DATABASE_URL: postgresql://mas:${POSTGRES_PASSWORD}@postgres:5432/langfuse
       NEXTAUTH_SECRET: ${LANGFUSE_NEXTAUTH_SECRET}

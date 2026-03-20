@@ -20,6 +20,7 @@ Startup order:
 
 import asyncio
 import logging
+import os
 from contextlib import asynccontextmanager
 
 import redis.asyncio as aioredis
@@ -96,11 +97,13 @@ async def lifespan(app: FastAPI):
     log.info("agent-orchestrator shutdown complete")
 
 
+_is_dev = os.environ.get("ENV", "production").lower() == "development"
+
 app = FastAPI(
     title="Agent Orchestrator",
     version="1.0.0",
     lifespan=lifespan,
-    docs_url="/docs",
+    docs_url="/docs" if _is_dev else None,
     redoc_url=None,
 )
 
