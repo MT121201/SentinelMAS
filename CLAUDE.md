@@ -8,7 +8,9 @@ All design and planning documents live in `systemdev_docs/`:
 
 | File | Purpose |
 |---|---|
-| `systemdev_docs/TODO.md` | **Phased task list** — the build plan. Work top-to-bottom per phase. Mark `[x]` when done. |
+| `systemdev_docs/TODO.md` | **V1 build plan** — all phases complete. Do not add new tasks here. |
+| `systemdev_docs/TODO_V2.md` | **V2 refactoring plan** — architecture debt fixes. Work here next. Read this before touching any agent or tool code. |
+| `systemdev_docs/ARCHITECTURE_DEBT.md` | Why V2 exists — full diagnosis of abstraction gaps with before/after code examples |
 | `systemdev_docs/SYSTEM_DESIGN.md` | Architecture overview, component descriptions, data-flow diagrams |
 | `systemdev_docs/AGENT_DESIGN.md` | Agent roles, tool lists, system prompts, RAG design |
 | `systemdev_docs/REQUIREMENTS.md` | Functional + non-functional requirements |
@@ -16,7 +18,9 @@ All design and planning documents live in `systemdev_docs/`:
 | `systemdev_docs/SECURITY.md` | SSH vault design, key rotation, command safety filter |
 | `systemdev_docs/INFRA.md` | Docker topology, service ports, scaling rules, resource limits |
 
-**Always read `TODO.md` first** to know the current phase and the next unchecked task. Mark tasks `[x]` as they are completed.
+**V1 is complete. All new work goes in V2.**
+Read `TODO_V2.md` first. Work phase-by-phase top-to-bottom. Mark `[x]` when done.
+Read `ARCHITECTURE_DEBT.md` to understand the *why* behind each V2 task before implementing.
 
 ## Project: GPU-MAS (SentinelMAS)
 

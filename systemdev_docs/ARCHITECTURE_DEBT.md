@@ -418,6 +418,9 @@ This costs ~15 lines per agent and gives IDE autocomplete + mypy coverage over s
 
 ## Remediation Roadmap
 
+> **Full phased task list with atomic checkboxes:** [`TODO_V2.md`](TODO_V2.md)
+> Work from TODO_V2.md — this section is the summary only.
+
 These changes do **not** require a rewrite — they are additive refactors. Each step
 is independently shippable.
 
